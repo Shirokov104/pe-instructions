@@ -1617,11 +1617,9 @@ function goToItem(mod, sectionId) {
 
 
 <script>
-if ('serviceWorker' in navigator && location.hostname !== 'www.claudeusercontent.com') {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('./sw.js').catch(function(err) {
-      console.log('SW error', err);
-    });
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+    for (let r of registrations) { r.unregister(); }
   });
 }
 </script>
