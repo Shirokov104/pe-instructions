@@ -57,6 +57,10 @@
 
   body.pony { background: #fff5f5; }
   body.postal { background: #f0fdf4; }
+  body.cargo { background: #f1f8e9; }
+  body.cargo .module-bar { background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 60%, #66bb6a 100%); }
+  body.cargo .module-logo .check-logo { display: none; }
+  body.cargo .module-logo .cargo-logo { display: inline; }
 
   /* ===== MODULE SWITCHER ===== */
   .module-bar {
@@ -99,6 +103,7 @@
   body.postal .module-logo .check-logo { display: none; }
   body.postal .module-logo .postal-logo { display: inline; }
   .postal-logo { display: none; }
+.cargo-logo { display: none; }
 
   .module-subtitle {
     font-size: 11px;
@@ -213,6 +218,7 @@
   .result-item:active { transform: scale(0.98); }
   .result-item.pony-result { border-left-color: var(--red); }
   .result-item.postal-result { border-left-color: #16a34a; }
+  .result-item.cargo-result { border-left-color: #2e7d32; }
 
   .result-module-badge {
     display: inline-block;
@@ -225,6 +231,7 @@
   .badge-courier { background: var(--blue-light); color: var(--blue); }
   .badge-pony { background: var(--red-light); color: var(--red); }
   .badge-postal { background: #dcfce7; color: #14532d; }
+  .badge-cargo { background: #e8f5e9; color: #1b5e20; }
 
   .result-section { font-size: 10px; color: var(--gray-400); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px; }
   .result-title { font-size: 13px; font-weight: 600; color: var(--gray-800); margin-bottom: 2px; }
@@ -274,6 +281,12 @@
   }
 
   /* postal module tab active color */
+  body.cargo #cargoTabs .tab-btn.active {
+    background: #2e7d32;
+    border-color: #2e7d32;
+    color: #fff;
+  }
+
   body.postal #postalTabs .tab-btn.active {
     background: #16a34a;
     border-color: #16a34a;
@@ -380,6 +393,7 @@
       <span class="check-logo">чекбокс</span>
       <span class="pony-logo">🐎 Pony Express</span>
       <span class="postal-logo">✉️ Почтовые отправления</span>
+          <span class="cargo-logo">🚛 Грузовые отправления</span>
     </div>
     <div class="module-subtitle" id="moduleSubtitle">Инструкция курьера</div>
   </div>
@@ -387,6 +401,7 @@
     <button class="mod-btn active" id="btnCourier" onclick="switchModule('courier')">📱 Курьерское приложение</button>
     <button class="mod-btn" id="btnPony" onclick="switchModule('pony')">📦 Продукты Pony Express</button>
     <button class="mod-btn" id="btnPostal" onclick="switchModule('postal')">✉️ Почтовые отправления</button>
+    <button class="mod-btn" id="btnCargo" onclick="switchModule('cargo')">🚛 Грузовые отправления</button>
   </div>
   <div class="search-wrap">
     <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5">
@@ -873,7 +888,7 @@ function switchModule(mod) {
   currentModule = mod;
 
   // modules
-  var modules = ['courier', 'pony', 'postal'];
+  var modules = ['courier', 'pony', 'postal', 'cargo'];
   modules.forEach(function(m) {
     var el = document.getElementById('module-' + m);
     if (el) { el.classList.remove('active'); if (m === mod) el.classList.add('active'); }
@@ -882,12 +897,13 @@ function switchModule(mod) {
   });
 
   // body theme
-  document.body.classList.remove('pony', 'postal');
+  document.body.classList.remove('pony', 'postal', 'cargo');
   if (mod === 'pony') document.body.classList.add('pony');
   if (mod === 'postal') document.body.classList.add('postal');
+  if (mod === 'cargo') document.body.classList.add('cargo');
 
   // subtitle
-  var subtitles = { courier: 'Инструкция курьера', pony: 'Продукты и услуги', postal: 'Почтовые отправления' };
+  var subtitles = { courier: 'Инструкция курьера', pony: 'Продукты и услуги', postal: 'Почтовые отправления', cargo: 'Грузовые отправления' };
   document.getElementById('moduleSubtitle').textContent = subtitles[mod] || '';
 
   // re-apply pony/postal tab accent colors for currently active tab
@@ -990,6 +1006,27 @@ const searchData = [
   { module:'postal', moduleLabel:'Почтовые отправления', section:'sorting', sectionName:'Сортировка и сборка', title:'Сбор консолидации мешков', text:'Сбор по матрице отправок. Событие 79 Внесён в консолидацию, выбрать точку назначения, сканировать накладные. Затем 91 Внесён в контейнер. Затем 81 Убыл со склада — сканировать наклейку консолидации.' },
   { module:'postal', moduleLabel:'Почтовые отправления', section:'sorting', sectionName:'Сортировка и сборка', title:'REG-MOW виды консолидации', text:'REG–MOW — в манифест только конверты и пакеты транзитом через Булатниково в филиалы Москвы (УОК-Запад, УОК-Восток, УОК-Юг). Вес мешка не более 20 кг.' },
   { module:'postal', moduleLabel:'Почтовые отправления', section:'sorting', sectionName:'Сортировка и сборка', title:'Наклейка на мешок консолидации', text:'Закрепить наклейку рядом с мешком консолидации. При событии Убыл со склада сканировать наклейку консолидации, не накладные вложений. Перенести в зону погрузки.' },
+
+  // CARGO
+  { module:'cargo', moduleLabel:'Грузовые отправления', section:'cargo_first_mile', sectionName:'Первая миля', title:'Что такое первая миля', text:'Первая миля — стартовая точка движения отправления в пункт доставки. Принимаются отправления от курьера, экспедитора или клиента в ППВЗ.' },
+  { module:'cargo', moduleLabel:'Грузовые отправления', section:'cargo_first_mile', sectionName:'Первая миля', title:'Создание блока событий Манифест Пегас', text:'Войти в Пегас, открыть Ввод блока событий, тип Манифест. Указать точку сканирования. Событие 71 Прибыл на склад. Указать табельный номер курьера. Проверить отправление. Сканировать. Сохранить F9.' },
+  { module:'cargo', moduleLabel:'Грузовые отправления', section:'cargo_first_mile', sectionName:'Первая миля', title:'Типы событий Пегас 71 72 79 81 88 91 95 210', text:'71 прибыл на склад, 72 проинвентаризирован, 79 внесён в консолидацию, 81 убыл со склада, 88 прибыл в пункт доставки, 91 внесён в контейнер, 95 перемещён в пределах точки, 210 инвентаризация КП.' },
+  { module:'cargo', moduleLabel:'Грузовые отправления', section:'cargo_first_mile', sectionName:'Первая миля', title:'Виды накладных фирменная стикер штрихкод', text:'Фирменная накладная PE — основной документ на каждом отправлении, крепится на первое место. Накладная-наклейка стикер. Накладная штрихкод для внутригородских отправлений. Конверт с документами — всегда первое место.' },
+  { module:'cargo', moduleLabel:'Грузовые отправления', section:'cargo_first_mile', sectionName:'Первая миля', title:'Проверка отправления при приёме', text:'Проверить наличие накладной. Сверить количество мест при многоместном. Проверить целостность упаковки. Контрольное взвешивание и измерение габаритов. При расхождении вписать фактические данные в накладную от руки.' },
+  { module:'cargo', moduleLabel:'Грузовые отправления', section:'cargo_first_mile', sectionName:'Первая миля', title:'Объёмный вес формулы расчёт', text:'Для коробки: Длина x Ширину x Высоту делить на 5000. Для рулона: Площадь круга на Высоту делить на 5000. Для тубуса: Площадь треугольника на Высоту делить на 5000. Многоместный — сумма физического и объёмного всех мест.' },
+  { module:'cargo', moduleLabel:'Грузовые отправления', section:'cargo_first_mile', sectionName:'Первая миля', title:'Акт приёма-передачи объявленная ценность 500000', text:'Требуется если объявленная ценность более 500 000 рублей кроме интернет-магазинов. Заказчик, характер груза, подписи. Заверяется печатью АО ФРЕЙТ ЛИНК.' },
+  { module:'cargo', moduleLabel:'Грузовые отправления', section:'cargo_first_mile', sectionName:'Первая миля', title:'Алгоритм работы с проблемными отправлениями', text:'Передать в зону проблемных. Создать событие 95 Перемещён в пределах точки. Прописать коды исключения. Наклеить белую наклейку с кодом, табельным номером и датой. Отложить в зону проблемных.' },
+  { module:'cargo', moduleLabel:'Грузовые отправления', section:'cargo_marking', sectionName:'Маркировка', title:'Грузовая этикетка поля DESTINATION MAWB PIECE WEIGHT', text:'DESTINATION КУДА — пункт назначения. MAWB НАКЛАДНАЯ — номер накладной. PIECE МЕСТО и TOTAL PIECES ВСЕГО МЕСТ. WEIGHT ВЕС МЕСТА и TOTAL WEIGHT ОБЩИЙ ВЕС. SHIPPER ОТПРАВИТЕЛЬ — не заполняется или режим доставки.' },
+  { module:'cargo', moduleLabel:'Грузовые отправления', section:'cargo_marking', sectionName:'Маркировка', title:'Модуль Маркировка по штрихкоду 2', text:'Открыть модуль Маркировка по штрихкоду 2. Ввести клиентский номер заказа, номер места или накладной. Выбрать формат 102x156 мм и принтер. Нажать Создать накладную или наклейку.' },
+  { module:'cargo', moduleLabel:'Грузовые отправления', section:'cargo_marking', sectionName:'Маркировка', title:'Идентификационные наклейки наземная выходного дня белая', text:'Наземная транспортировка зелёный грузовик — для наземного транспорта и спецусловий, наклеивает склад. Доставка выходного дня красный круг. Белая пустая наклейка — для кодов исключения.' },
+  { module:'cargo', moduleLabel:'Грузовые отправления', section:'cargo_obreshetka', sectionName:'Обрешётка', title:'Что такое обрешётка', text:'Обрешётка — деревянная или металлическая защитная конструкция для хрупких крупногабаритных и ценных грузов при транспортировке. Платная дополнительная услуга.' },
+  { module:'cargo', moduleLabel:'Грузовые отправления', section:'cargo_obreshetka', sectionName:'Обрешётка', title:'Когда требуется обрешётка порядок работы', text:'Хрупкий груз, нестандартные габариты, высокая объявленная ценность, требование клиента. Передать в зону упаковки, после обрешётки прикрепить накладную и этикетки, отсканировать событием 71, разместить в зоне КГО.' },
+  { module:'cargo', moduleLabel:'Грузовые отправления', section:'cargo_second_mile', sectionName:'Вторая миля', title:'Вторая миля алгоритм приёма', text:'Открыть Регистрация событий 2. Создать событие 71 Прибыл на склад. Сканировать отправления. Через Отчёты открыть Сравнение блоков для контроля расхождений.' },
+  { module:'cargo', moduleLabel:'Грузовые отправления', section:'cargo_second_mile', sectionName:'Вторая миля', title:'Неопознанные отправления код исключения 168', text:'Наклеить белую наклейку и указать 168 Неопознанное отправление. Отложить в зону проблемных. Передать на участок КП.' },
+  { module:'cargo', moduleLabel:'Грузовые отправления', section:'cargo_second_mile', sectionName:'Вторая миля', title:'Отправления с КИ некорректный адрес код 2', text:'Код 2 Указан некорректный адрес получателя. Передать в зону проблемных. Событие 81 Убыл со склада с кодом исключения в примечании.' },
+  { module:'cargo', moduleLabel:'Грузовые отправления', section:'cargo_sorting', sectionName:'Сортировка', title:'Сортировка грузовых отправлений по маршрутам', text:'Отправления сортируются по маршрутам доставки по точкам назначения. С некорректным адресом — в зону проблемных, событие 81. Крупногабаритные КГО — в отдельную зону хранения.' },
+  { module:'cargo', moduleLabel:'Грузовые отправления', section:'cargo_sorting', sectionName:'Сортировка', title:'Сбор консолидации паллеты матрица отправок', text:'Сбор по матрице отправок. Событие 79 Внесён в консолидацию. Сканировать накладные грузовых. Событие 91 Внесён в контейнер. Событие 81 Убыл со склада — сканировать наклейку консолидации не накладные. Перенести в зону погрузки.' },
+
 ];
 
 function highlight(text, query) {
@@ -1045,8 +1082,8 @@ input.addEventListener('input', function() {
 
   var q2 = this.value.trim();
   resultsList.innerHTML = found.map(function(item) {
-    var itemClass = item.module === 'pony' ? 'pony-result' : item.module === 'postal' ? 'postal-result' : '';
-    var badgeClass = item.module === 'courier' ? 'badge-courier' : item.module === 'postal' ? 'badge-postal' : 'badge-pony';
+    var itemClass = item.module === 'pony' ? 'pony-result' : item.module === 'postal' ? 'postal-result' : item.module === 'cargo' ? 'cargo-result' : '';
+    var badgeClass = item.module === 'courier' ? 'badge-courier' : item.module === 'postal' ? 'badge-postal' : item.module === 'cargo' ? 'badge-cargo' : 'badge-pony';
     var preview = item.text.length > 110 ? item.text.slice(0, 110) + '…' : item.text;
     return '<div class="result-item ' + itemClass + '" onclick="goToItem(\'' + item.module + '\',\'' + item.section + '\')">' +
       '<span class="result-module-badge ' + badgeClass + '">' + item.moduleLabel + '</span>' +
@@ -1330,6 +1367,252 @@ function goToItem(mod, sectionId) {
 
 </div><!-- /main postal -->
 </div><!-- /module-postal -->
+
+<!-- ======================================================= -->
+<!-- MODULE 4: ГРУЗОВЫЕ ОТПРАВЛЕНИЯ -->
+<!-- ======================================================= -->
+<div class="module" id="module-cargo">
+<div class="main">
+<div class="section-tabs" id="cargoTabs">
+<button class="tab-btn active" onclick="showSection('cargo_first_mile','cargo',this)">📥 Первая миля</button>
+<button class="tab-btn" onclick="showSection('cargo_marking','cargo',this)">🏷️ Маркировка</button>
+<button class="tab-btn" onclick="showSection('cargo_obreshetka','cargo',this)">📦 Обрешётка</button>
+<button class="tab-btn" onclick="showSection('cargo_second_mile','cargo',this)">📤 Вторая миля</button>
+<button class="tab-btn" onclick="showSection('cargo_sorting','cargo',this)">🔀 Сортировка</button>
+</div>
+
+<!-- C1. ПЕРВАЯ МИЛЯ -->
+<div class="section active" id="cargo-cargo_first_mile">
+<div class="section-header">
+<div class="section-icon" style="background:#e8f5e9">📥</div>
+<div class="section-title">Приём отправлений на первой миле</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#2e7d32">Что такое первая миля?</div>
+<div class="alert alert-success"><span class="alert-icon">ℹ️</span><span><b>Первая миля</b> — стартовая точка движения отправления в пункт доставки. На первой миле принимаются отправления от курьера, экспедитора или клиента в ППВЗ.</span></div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#2e7d32">Создание блока событий в Пегасе</div>
+<div class="steps">
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">1</div><div class="step-text">Нажмите на <b>ярлык «Pony Express Пегас»</b> на рабочем столе Windows для входа в программу.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">2</div><div class="step-text">Откройте модуль <b>«Ввод блока событий».</b> Тип блока — <b>Манифест.</b></div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">3</div><div class="step-text">Обязательно укажите <b>точку сканирования</b> — место, где создаётся манифест.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">4</div><div class="step-text">Выставьте событие <b>71 «Прибыл на склад».</b> В поле «Примечание» и «Номер курьера» укажите <b>табельный номер курьера,</b> сдающего отправления.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">5</div><div class="step-text">Перед сканированием <b>проверьте отправление:</b> наличие накладной, соответствие количества мест, целостность упаковки.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">6</div><div class="step-text">Сканируйте отправления. Для многоместных — <b>сверьтесь с количеством мест</b> в накладной.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">7</div><div class="step-text">Нажмите <b>«Сохранить» (F9)</b> для завершения блока. Можно распечатать <b>блок событий</b> курьеру как подтверждение сдачи отправлений.</div></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#2e7d32">Типы событий в Пегасе</div>
+<div class="info-row">
+<div class="info-item"><div class="lbl">71 — Прибыл на склад</div><div class="val">Регистрируются все поступившие на склад отправления на первой и второй миле.</div></div>
+<div class="info-item"><div class="lbl">72 — Проинвентаризирован</div><div class="val">Событие проставляется при проведении инвентаризации на складе.</div></div>
+<div class="info-item"><div class="lbl">79 — Внесён в консолидацию</div><div class="val">При сборе консолидации — внесение грузовых отправлений, которые складываются на паллету, и мешков с почтовыми отправлениями в короб.</div></div>
+<div class="info-item"><div class="lbl">81 — Убыл со склада</div><div class="val">Регистрируется убытие отправлений и грузов на другой склад.</div></div>
+<div class="info-item"><div class="lbl">88 — Прибыл в пункт доставки</div><div class="val">Событие сообщает о прибытии отправления в конечный пункт назначения, осуществляющий доставку.</div></div>
+<div class="info-item"><div class="lbl">91 — Внесён в контейнер</div><div class="val">При сборе почтовой консолидации — конверты и пакеты, которые складываются в мешок консолидации.</div></div>
+<div class="info-item"><div class="lbl">95 — Перемещён в пределах точки</div><div class="val">Перемещение отправления между разными участками в пределах склада.</div></div>
+<div class="info-item"><div class="lbl">210 — Инвентаризация КП</div><div class="val">Событие сообщает, что отправление физически находится на складе по работе с контрольными пакетами.</div></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#2e7d32">Виды накладных Pony Express</div>
+<div class="info-row">
+<div class="info-item"><div class="lbl">Фирменная накладная PE</div><div class="val">Основной сопроводительный документ. Присутствует на каждом отправлении. При многоместной отправке крепится на <b>первое место.</b></div></div>
+<div class="info-item"><div class="lbl">Накладная-наклейка (стикер)</div><div class="val">Наклеивается непосредственно на отправление. Содержит штрихкод и данные о грузе.</div></div>
+<div class="info-item"><div class="lbl">Накладная штрихкод — внутригородские</div><div class="val">Используется для отправлений внутри города. Штрихкод нанесён прямо на накладную.</div></div>
+</div>
+<div class="alert alert-info"><span class="alert-icon">ℹ️</span><span>Если одно из мест — конверт с документами или почтовый пакет, то он будет <b>всегда первым местом.</b></span></div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#2e7d32">Проверка отправления при приёме</div>
+<div class="steps">
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">1</div><div class="step-text">Убедитесь в <b>наличии накладной</b> на каждом отправлении.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">2</div><div class="step-text">Для многоместных — <b>сверьтесь с количеством мест,</b> указанных в накладной.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">3</div><div class="step-text">Проверьте <b>целостность упаковки.</b> При нарушениях — зафиксируйте и передайте в зону проблемных.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">4</div><div class="step-text">Проведите <b>контрольное взвешивание</b> и измерение габаритов. Сверьте с данными в накладной.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">5</div><div class="step-text">При расхождении — <b>впишите фактические данные</b> в накладную от руки и передайте в Отдел ввода информации.</div></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#2e7d32">Приложение по объёмному весу</div>
+<div class="info-row">
+<div class="info-item"><div class="lbl">Когда заполняется</div><div class="val">При оплате наличными — курьер рассчитывает объёмный вес. При оплате по счёту — достаточно внести габариты в таблицу.</div></div>
+<div class="info-item"><div class="lbl">Формула для коробки</div><div class="val">(Длина × Ширина × Высота) / 5000</div></div>
+<div class="info-item"><div class="lbl">Формула для рулона</div><div class="val">(Площадь круга см² × Высота см) / 5000, где Площадь круга = πR², π = 3,14</div></div>
+<div class="info-item"><div class="lbl">Формула для тубуса</div><div class="val">(Площадь треугольника см² × Высота см) / 5000</div></div>
+</div>
+<div class="alert alert-info"><span class="alert-icon">ℹ️</span><span>Вес отправления из нескольких мест определяется <b>суммированием физического и объёмного веса</b> всех мест.</span></div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#2e7d32">Акт приёма-передачи груза</div>
+<div class="info-row">
+<div class="info-item"><div class="lbl">Когда требуется</div><div class="val">Если объявленная ценность отправления <b>более 500 000 рублей</b> (кроме интернет-магазинов).</div></div>
+<div class="info-item"><div class="lbl">Заказчик</div><div class="val">Точное наименование компании. Плательщик 3-е лицо — указать код договора. Если неизвестен — не заполнять.</div></div>
+<div class="info-item"><div class="lbl">Характер груза</div><div class="val">Описание совпадает с указанным в накладной в графе «Описание вложения».</div></div>
+<div class="info-item"><div class="lbl">Подписание со стороны получателя</div><div class="val">Заполняется курьером при приёме/доставке. Указывается фамилия, должность, подпись. Заверяется печатью «АО ФРЕЙТ ЛИНК».</div></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#2e7d32">Алгоритм работы с проблемными отправлениями</div>
+<div class="steps">
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">1</div><div class="step-text"><b>Передать</b> отправления с нарушениями в зону предварительной обработки проблемных отправлений.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">2</div><div class="step-text"><b>Создать</b> событие <b>95 «Перемещён в пределах точки»</b> в Пегасе. Указать точку назначения — склад КП.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">3</div><div class="step-text"><b>Прописать</b> код(ы) исключения в примечании и краткую информацию о выявленной ошибке.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">4</div><div class="step-text"><b>Наклеить</b> на первое место рядом с накладной <b>белую наклейку.</b> Указать код исключения, табельный номер курьера и дату приёма.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">5</div><div class="step-text"><b>Отложить</b> в зону предварительной обработки проблемных отправлений для последующей передачи на участок КП.</div></div>
+</div>
+<div class="alert alert-warning"><span class="alert-icon">⚠️</span><span>Информацию по кодам исключения вы найдёте в разделе «Ресурсы» программы Пегас.</span></div>
+</div>
+</div>
+
+<!-- C2. МАРКИРОВКА -->
+<div class="section" id="cargo-cargo_marking">
+<div class="section-header">
+<div class="section-icon" style="background:#e8f5e9">🏷️</div>
+<div class="section-title">Маркировка по штрихкоду</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#2e7d32">Грузовая этикетка — поля заполнения</div>
+<div class="alert alert-success"><span class="alert-icon">ℹ️</span><span>При многоместной отправке <b>накладная всегда крепится на первое место.</b> Грузовая этикетка крепится <b>на все места,</b> включая первое.</span></div>
+<div class="info-row" style="margin-top:12px">
+<div class="info-item"><div class="lbl">DESTINATION / КУДА</div><div class="val">Город и код пункта назначения отправления.</div></div>
+<div class="info-item"><div class="lbl">MAWB / НАКЛАДНАЯ</div><div class="val">Номер накладной Pony Express.</div></div>
+<div class="info-item"><div class="lbl">PIECE / МЕСТО и TOTAL PIECES / ВСЕГО МЕСТ</div><div class="val">Номер конкретного места и общее количество мест в отправлении.</div></div>
+<div class="info-item"><div class="lbl">WEIGHT / ВЕС МЕСТА и TOTAL WEIGHT / ОБЩИЙ ВЕС</div><div class="val">Вес данного места и суммарный вес всего отправления.</div></div>
+<div class="info-item"><div class="lbl">SHIPPER / ОТПРАВИТЕЛЬ</div><div class="val">Не заполняется, либо указывается режим доставки (Экспресс, Стандарт).</div></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#2e7d32">Модуль маркировки в Пегасе</div>
+<div class="steps">
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">1</div><div class="step-text">Откройте модуль <b>«Маркировка по штрихкоду 2»</b> в программе Пегас.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">2</div><div class="step-text">Введите <b>клиентский номер заказа, номер места или номер накладной</b> в поле ввода.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">3</div><div class="step-text">Система автоматически подтянет данные: <b>номер накладной, количество мест, вес, контрольный вес.</b></div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">4</div><div class="step-text">Выберите <b>формат печати</b> (обычная 102×156 мм) и <b>принтер.</b></div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">5</div><div class="step-text">Нажмите кнопку <b>«Создать накладную/наклейку»</b> для печати этикеток.</div></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#2e7d32">Идентификационные наклейки</div>
+<div class="info-row">
+<div class="info-item"><div class="lbl">🟢 Наземная транспортировка</div><div class="val">Для отправлений, транспортируемых наземным транспортом (опасный груз, специальные условия клиента и т.п.). Наклеивает склад.</div></div>
+<div class="info-item"><div class="lbl">🔴 Доставка выходного дня</div><div class="val">Для отправлений, которые необходимо доставить в выходной день. Наклеивает склад.</div></div>
+<div class="info-item"><div class="lbl">⬜ Белая пустая наклейка</div><div class="val">Для указания кода исключения и краткой информации о выявленной проблеме. Наклеивается на первое место рядом с накладной.</div></div>
+</div>
+</div>
+</div>
+
+<!-- C3. ОБРЕШЁТКА -->
+<div class="section" id="cargo-cargo_obreshetka">
+<div class="section-header">
+<div class="section-icon" style="background:#e8f5e9">📦</div>
+<div class="section-title">Обрешётка</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#2e7d32">Что такое обрешётка?</div>
+<div class="alert alert-success"><span class="alert-icon">ℹ️</span><span><b>Обрешётка</b> — деревянная или металлическая защитная конструкция (каркас), в которую помещается груз для обеспечения его сохранности при транспортировке. Применяется для хрупких, крупногабаритных и ценных грузов.</span></div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#2e7d32">Когда требуется обрешётка</div>
+<div class="info-row">
+<div class="info-item"><div class="lbl">Хрупкий груз</div><div class="val">Стеклянные изделия, техника, предметы искусства — при риске повреждения при стандартной упаковке.</div></div>
+<div class="info-item"><div class="lbl">Нестандартные габариты</div><div class="val">Крупногабаритные отправления, которые не помещаются в стандартные коробки или мешки.</div></div>
+<div class="info-item"><div class="lbl">Высокая объявленная ценность</div><div class="val">Грузы с объявленной ценностью, требующей дополнительной защиты при транспортировке.</div></div>
+<div class="info-item"><div class="lbl">Требование клиента</div><div class="val">Обрешётка может быть заказана клиентом как дополнительная платная услуга.</div></div>
+</div>
+<div class="alert alert-warning"><span class="alert-icon">⚠️</span><span>Обрешётка является платной дополнительной услугой. Без отметки в накладной самостоятельно не производится.</span></div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#2e7d32">Порядок работы с обрешёткой</div>
+<div class="steps">
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">1</div><div class="step-text">Убедитесь, что <b>услуга обрешётки указана в накладной</b> (дополнительная услуга).</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">2</div><div class="step-text">Передайте груз в <b>зону упаковки</b> для проведения обрешётки.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">3</div><div class="step-text">После обрешётки <b>прикрепите накладную и грузовые этикетки</b> на конструкцию.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">4</div><div class="step-text">Отсканируйте обрешётку в манифест событием <b>71 «Прибыл на склад».</b></div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">5</div><div class="step-text">Разместите в <b>зоне хранения крупногабаритных отправлений (КГО)</b> до отправки.</div></div>
+</div>
+</div>
+</div>
+
+<!-- C4. ВТОРАЯ МИЛЯ -->
+<div class="section" id="cargo-cargo_second_mile">
+<div class="section-header">
+<div class="section-icon" style="background:#e8f5e9">📤</div>
+<div class="section-title">Приём отправлений на второй миле</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#2e7d32">Что такое вторая миля?</div>
+<div class="alert alert-success"><span class="alert-icon">ℹ️</span><span>На <b>второй миле</b> грузовые отправления поступают из других узлов сети. Здесь проводится приём, регистрация событий и работа с неопознанными отправлениями.</span></div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#2e7d32">Алгоритм приёма на второй миле</div>
+<div class="steps">
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">1</div><div class="step-text">Откройте модуль <b>«Регистрация событий 2»</b> в Пегасе.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">2</div><div class="step-text">Создайте новое событие — <b>«Прибыл на склад»</b> (событие 71).</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">3</div><div class="step-text">Сканируйте штрихкоды отправлений или <b>вводите вручную</b> с клавиатуры.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">4</div><div class="step-text">Через вкладку <b>«Отчёты»</b> откройте модуль <b>«Сравнение блоков»</b> для контроля расхождений между отправленным и полученным количеством мест.</div></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#2e7d32">Неопознанные отправления</div>
+<div class="steps">
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">1</div><div class="step-text">Наклеить на первое место рядом с накладной <b>белую наклейку</b> и указать <b>168 код исключения «Неопознанное отправление».</b></div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">2</div><div class="step-text">Отложить в <b>зону обработки проблемных отправлений</b> для последующей передачи на КП.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">3</div><div class="step-text">Передать все проблемные отправления на <b>участок КП.</b></div></div>
+</div>
+<div class="alert alert-warning"><span class="alert-icon">⚠️</span><span>Если отсутствует маркировка или она нечитаема — действуйте строго по алгоритму.</span></div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#2e7d32">Работа с отправлениями «с КИ»</div>
+<div class="steps">
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">1</div><div class="step-text">Укажите <b>2 код исключения</b> на накладной: «Указан некорректный/неправильный адрес получателя».</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">2</div><div class="step-text">Передайте отправление в <b>зону обработки проблемных отправлений.</b></div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">3</div><div class="step-text">Зарегистрируйте убытие — событие <b>81 «Убыл со склада».</b> В примечании укажите <b>код исключения.</b></div></div>
+</div>
+</div>
+</div>
+
+<!-- C5. СОРТИРОВКА И СБОРКА -->
+<div class="section" id="cargo-cargo_sorting">
+<div class="section-header">
+<div class="section-icon" style="background:#e8f5e9">🔀</div>
+<div class="section-title">Сортировка и сборка консолидации</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#2e7d32">Сортировка входящих грузовых отправлений</div>
+<div class="steps">
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">1</div><div class="step-text">Грузовые отправления сортируются <b>по маршрутам доставки</b> (по точкам назначения).</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">2</div><div class="step-text">Отправления с <b>некорректным/неправильным адресом</b> → в зону проблемных. Зарегистрировать убытие — событие <b>81,</b> в примечании указать код исключения.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">3</div><div class="step-text">Крупногабаритные отправления размещаются <b>в зоне хранения КГО</b> отдельно от стандартных мест.</div></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#2e7d32">Сбор консолидации (паллеты)</div>
+<div class="steps">
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">1</div><div class="step-text">Сбор консолидации происходит по мере набора отправлений для определённого направления на основании <b>матрицы отправок,</b> которая приходит на электронную почту.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">2</div><div class="step-text">Откройте <b>«Ввод блока событий»,</b> тип — <b>Манифест.</b> Событие <b>79 «Внесён в консолидацию»,</b> выбрать точку назначения.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">3</div><div class="step-text">Сканировать накладные грузовых отправлений, которые войдут в данную консолидацию.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">4</div><div class="step-text">Сохранить блок. Создать событие <b>91 «Внесён в контейнер»</b> — выбрать точку назначения.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">5</div><div class="step-text">Для готовой консолидации создать событие <b>81 «Убыл со склада»</b> — сканировать <b>наклейку консолидации,</b> не накладные.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">6</div><div class="step-text">Перенести готовые паллеты <b>в зону погрузки.</b></div></div>
+</div>
+<div class="alert alert-info"><span class="alert-icon">ℹ️</span><span>При событии «Убыл со склада» сканируйте именно <b>наклейку консолидации,</b> а не накладные вложений.</span></div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#2e7d32">Наклейка на паллету консолидации</div>
+<div class="steps">
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">1</div><div class="step-text">Распечатать наклейку консолидации через <b>модуль маркировки.</b></div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">2</div><div class="step-text">Закрепить наклейку <b>на специально выделенном месте</b> паллеты или короба консолидации.</div></div>
+<div class="step"><div class="step-num" style="background:#e8f5e9;color:#2e7d32">3</div><div class="step-text">Для события «Убыл со склада» сканировать <b>именно наклейку консолидации.</b></div></div>
+</div>
+</div>
+</div>
+
+</div><!-- /main cargo -->
+</div><!-- /module-cargo -->
+
 
 
 
