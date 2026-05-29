@@ -57,6 +57,10 @@
 
   body.pony { background: #fff5f5; }
   body.postal { background: #f0fdf4; }
+  body.undelivered { background: #fff8f0; }
+  body.undelivered .module-bar { background: linear-gradient(135deg, #7b1fa2 0%, #ab47bc 60%, #ce93d8 100%); }
+  body.undelivered .module-logo .check-logo { display: none; }
+  body.undelivered .module-logo .undelivered-logo { display: inline; }
   body.cargo { background: #f1f8e9; }
   body.cargo .module-bar { background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 60%, #66bb6a 100%); }
   body.cargo .module-logo .check-logo { display: none; }
@@ -104,6 +108,7 @@
   body.postal .module-logo .postal-logo { display: inline; }
   .postal-logo { display: none; }
 .cargo-logo { display: none; }
+.undelivered-logo { display: none; }
 
   .module-subtitle {
     font-size: 11px;
@@ -219,6 +224,7 @@
   .result-item.pony-result { border-left-color: var(--red); }
   .result-item.postal-result { border-left-color: #16a34a; }
   .result-item.cargo-result { border-left-color: #2e7d32; }
+  .result-item.undelivered-result { border-left-color: #7b1fa2; }
 
   .result-module-badge {
     display: inline-block;
@@ -232,6 +238,7 @@
   .badge-pony { background: var(--red-light); color: var(--red); }
   .badge-postal { background: #dcfce7; color: #14532d; }
   .badge-cargo { background: #e8f5e9; color: #1b5e20; }
+  .badge-undelivered { background: #f3e5f5; color: #6a1b9a; }
 
   .result-section { font-size: 10px; color: var(--gray-400); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px; }
   .result-title { font-size: 13px; font-weight: 600; color: var(--gray-800); margin-bottom: 2px; }
@@ -281,6 +288,11 @@
   }
 
   /* postal module tab active color */
+  body.undelivered #undeliveredTabs .tab-btn.active {
+    background: #7b1fa2;
+    border-color: #7b1fa2;
+    color: #fff;
+  }
   body.cargo #cargoTabs .tab-btn.active {
     background: #2e7d32;
     border-color: #2e7d32;
@@ -394,6 +406,7 @@
       <span class="pony-logo">🐎 Pony Express</span>
       <span class="postal-logo">✉️ Почтовые отправления</span>
           <span class="cargo-logo">🚛 Грузовые отправления</span>
+          <span class="undelivered-logo">↩️ Приём недоставленных</span>
     </div>
     <div class="module-subtitle" id="moduleSubtitle">Инструкция курьера</div>
   </div>
@@ -402,6 +415,7 @@
     <button class="mod-btn" id="btnPony" onclick="switchModule('pony')">📦 Продукты Pony Express</button>
     <button class="mod-btn" id="btnPostal" onclick="switchModule('postal')">✉️ Почтовые отправления</button>
     <button class="mod-btn" id="btnCargo" onclick="switchModule('cargo')">🚛 Грузовые отправления</button>
+    <button class="mod-btn" id="btnUndelivered" onclick="switchModule('undelivered')">↩️ Приём недоставленных</button>
   </div>
   <div class="search-wrap">
     <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5">
@@ -888,7 +902,7 @@ function switchModule(mod) {
   currentModule = mod;
 
   // modules
-  var modules = ['courier', 'pony', 'postal', 'cargo'];
+  var modules = ['courier', 'pony', 'postal', 'cargo', 'undelivered'];
   modules.forEach(function(m) {
     var el = document.getElementById('module-' + m);
     if (el) { el.classList.remove('active'); if (m === mod) el.classList.add('active'); }
@@ -897,13 +911,14 @@ function switchModule(mod) {
   });
 
   // body theme
-  document.body.classList.remove('pony', 'postal', 'cargo');
+  document.body.classList.remove('pony', 'postal', 'cargo', 'undelivered');
   if (mod === 'pony') document.body.classList.add('pony');
   if (mod === 'postal') document.body.classList.add('postal');
   if (mod === 'cargo') document.body.classList.add('cargo');
+  if (mod === 'undelivered') document.body.classList.add('undelivered');
 
   // subtitle
-  var subtitles = { courier: 'Инструкция курьера', pony: 'Продукты и услуги', postal: 'Почтовые отправления', cargo: 'Грузовые отправления' };
+  var subtitles = { courier: 'Инструкция курьера', pony: 'Продукты и услуги', postal: 'Почтовые отправления', cargo: 'Грузовые отправления', undelivered: 'Приём недоставленных отправлений' };
   document.getElementById('moduleSubtitle').textContent = subtitles[mod] || '';
 
   // re-apply pony/postal tab accent colors for currently active tab
@@ -1027,6 +1042,18 @@ const searchData = [
   { module:'cargo', moduleLabel:'Грузовые отправления', section:'cargo_sorting', sectionName:'Сортировка', title:'Сортировка грузовых отправлений по маршрутам', text:'Отправления сортируются по маршрутам доставки по точкам назначения. С некорректным адресом — в зону проблемных, событие 81. Крупногабаритные КГО — в отдельную зону хранения.' },
   { module:'cargo', moduleLabel:'Грузовые отправления', section:'cargo_sorting', sectionName:'Сортировка', title:'Сбор консолидации паллеты матрица отправок', text:'Сбор по матрице отправок. Событие 79 Внесён в консолидацию. Сканировать накладные грузовых. Событие 91 Внесён в контейнер. Событие 81 Убыл со склада — сканировать наклейку консолидации не накладные. Перенести в зону погрузки.' },
 
+  // UNDELIVERED
+  { module:'undelivered', moduleLabel:'Приём недоставленных', section:'und_receipt', sectionName:'Приём', title:'Что делать с недоставленным отправлением', text:'Нужно узнать при каких условиях отправление было возвращено на склад. Проверить целостность упаковки, соответствие упаковки, отсутствие следов повреждения содержимого. Проверить наличие и корректность кодов исключения и даты времени проблемы на белой наклейке.' },
+  { module:'undelivered', moduleLabel:'Приём недоставленных', section:'und_receipt', sectionName:'Приём', title:'Осмотр недоставленного отправления', text:'Проверить целостность упаковки. Соответствие упаковки. Отсутствие следов повреждения содержимого. Если информация о проблеме некорректна — передать курьеру для устранения замечаний и дождаться корректировки белой наклейки или накладной.' },
+  { module:'undelivered', moduleLabel:'Приём недоставленных', section:'und_codes', sectionName:'Коды исключений', title:'Коды для повторной доставки 8 64 84 8 64 84', text:'8 — доставка перенесена из-за опоздания курьера. 64 — неправильно определён маршрут доставки. 84 — ДТП. Эти коды всегда передаются на ближайшую повторную дату.' },
+  { module:'undelivered', moduleLabel:'Приём недоставленных', section:'und_codes', sectionName:'Коды исключений', title:'Коды для повторной доставки при условиях 11 16 19 27 44 61 29 602', text:'11 — отсутствие на месте. 16 — отказ получателя от подписи. 19/68 — некорректный/неизвестный адрес. 27 — нерабочий праздничный день. 44 — переадресация в пределах подразделения. 61 — курьер ждал более 10 минут никто не вышел. 29 — неверный телефон. 602 — не вручено возраст не подтверждён.' },
+  { module:'undelivered', moduleLabel:'Приём недоставленных', section:'und_codes', sectionName:'Коды исключений', title:'Наклейка СРОЧНО при повторной доставке', text:'Если отправление передаётся на повторную доставку на ближайшую дату — не забыть наклеить наклейку СРОЧНО.' },
+  { module:'undelivered', moduleLabel:'Приём недоставленных', section:'und_pegasus', sectionName:'Работа в Пегасе', title:'Создание блока событий КП в Пегасе', text:'Открыть Ввод блока событий КП. Тип блока Манифест. Выбрать точку сканирования. Регистрируемое событие. Добавить коды исключения. Сканировать накладные. Сохранить F9. Выдать блок событий курьеру.' },
+  { module:'undelivered', moduleLabel:'Приём недоставленных', section:'und_pegasus', sectionName:'Работа в Пегасе', title:'Регистрация событий 2 блок событий курьеру', text:'Открыть Регистрация событий 2. Найти принятые недоставленные отправления. Нажать Печать — выдать блок событий курьеру как подтверждение сдачи недоставленных отправлений на склад.' },
+  { module:'undelivered', moduleLabel:'Приём недоставленных', section:'und_sorting', sectionName:'Сортировка', title:'Сортировка и повторная доставка', text:'Если выполняются условия для повторной доставки — отсортировать недоставленные отправления в тележку и зарегистрировать на повторную доставку. Если данные в таблице превышают данные на отправлении — отсортировать в тележку проблемных отправлений.' },
+  { module:'undelivered', moduleLabel:'Приём недоставленных', section:'und_sorting', sectionName:'Сортировка', title:'Сканирование накладной многоместное', text:'Отсканировать штрихкод накладной. Если отправление многоместное — последовательно отсканировать штрихкод накладной, затем штрихкод каждой грузовой этикетки каждого места отправления.' },
+  { module:'undelivered', moduleLabel:'Приём недоставленных', section:'und_sorting', sectionName:'Сортировка', title:'Проблемные отправления событие 95 передача на КП', text:'Отправления с повреждёнными упаковками КИ 04 обнаружено нарушение упаковки или КИ 38 отправление повреждено при ненарушенной упаковке. Создать событие 95 Перемещён в пределах точки. Передать тележку на этап обработки проблемных отправлений.' },
+
 ];
 
 function highlight(text, query) {
@@ -1082,8 +1109,8 @@ input.addEventListener('input', function() {
 
   var q2 = this.value.trim();
   resultsList.innerHTML = found.map(function(item) {
-    var itemClass = item.module === 'pony' ? 'pony-result' : item.module === 'postal' ? 'postal-result' : item.module === 'cargo' ? 'cargo-result' : '';
-    var badgeClass = item.module === 'courier' ? 'badge-courier' : item.module === 'postal' ? 'badge-postal' : item.module === 'cargo' ? 'badge-cargo' : 'badge-pony';
+    var itemClass = item.module === 'pony' ? 'pony-result' : item.module === 'postal' ? 'postal-result' : item.module === 'cargo' ? 'cargo-result' : item.module === 'undelivered' ? 'undelivered-result' : '';
+    var badgeClass = item.module === 'courier' ? 'badge-courier' : item.module === 'postal' ? 'badge-postal' : item.module === 'cargo' ? 'badge-cargo' : item.module === 'undelivered' ? 'badge-undelivered' : 'badge-pony';
     var preview = item.text.length > 110 ? item.text.slice(0, 110) + '…' : item.text;
     return '<div class="result-item ' + itemClass + '" onclick="goToItem(\'' + item.module + '\',\'' + item.section + '\')">' +
       '<span class="result-module-badge ' + badgeClass + '">' + item.moduleLabel + '</span>' +
@@ -1613,15 +1640,174 @@ function goToItem(mod, sectionId) {
 </div><!-- /main cargo -->
 </div><!-- /module-cargo -->
 
+<!-- ======================================================= -->
+<!-- MODULE 5: ПРИЁМ НЕДОСТАВЛЕННЫХ ОТПРАВЛЕНИЙ -->
+<!-- ======================================================= -->
+<div class="module" id="module-undelivered">
+<div class="main">
+<div class="section-tabs" id="undeliveredTabs">
+<button class="tab-btn active" onclick="showSection('und_receipt','undelivered',this)">📋 Приём</button>
+<button class="tab-btn" onclick="showSection('und_codes','undelivered',this)">🔢 Коды исключений</button>
+<button class="tab-btn" onclick="showSection('und_pegasus','undelivered',this)">💻 Работа в Пегасе</button>
+<button class="tab-btn" onclick="showSection('und_sorting','undelivered',this)">🔀 Сортировка</button>
+</div>
+
+<!-- U1. ПРИЁМ -->
+<div class="section active" id="undelivered-und_receipt">
+<div class="section-header">
+<div class="section-icon" style="background:#f3e5f5">📋</div>
+<div class="section-title">Приём недоставленных отправлений</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#7b1fa2">Что такое недоставленное отправление?</div>
+<div class="alert" style="background:#f3e5f5;border-left:4px solid #7b1fa2"><span class="alert-icon">ℹ️</span><span>Недоставленное отправление — это отправление, которое <b>не было вручено получателю</b> и возвращено на склад. Нужно узнать, при каких условиях оно было возвращено, чтобы понять — какие действия предпринять.</span></div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#7b1fa2">Осмотр при приёме</div>
+<div class="alert alert-warning"><span class="alert-icon">⚠️</span><span>Каждое отправление должно быть осмотрено на: <b>целостность упаковки, соответствие упаковки, отсутствие следов повреждения содержимого.</b></span></div>
+<div class="steps">
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">1</div><div class="step-text">Осмотрите упаковку: нет ли <b>вскрытий, деформаций, повреждений.</b></div></div>
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">2</div><div class="step-text">Проверьте на белой наклейке или накладной <b>наличие и корректность кодов исключения</b> и даты/времени возникновения проблемы.</div></div>
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">3</div><div class="step-text">Если информация о проблеме <b>некорректна или отсутствует</b> — передать курьеру накладные/отправления для устранения замечаний и дождаться корректировки белой наклейки/накладной.</div></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#7b1fa2">Условия для передачи на повторную доставку</div>
+<div class="info-row">
+<div class="info-item"><div class="lbl">Условие 1</div><div class="val">Отправление было <b>впервые на доставке</b> (не повторный привоз).</div></div>
+<div class="info-item"><div class="lbl">Условие 2</div><div class="val">На отправлении <b>указаны коды исключения,</b> с которыми оно передаётся на повторную доставку.</div></div>
+</div>
+<div class="alert alert-info" style="background:#f3e5f5;border-left:4px solid #7b1fa2"><span class="alert-icon">ℹ️</span><span>Если оба условия выполнены — отправление передаётся на ближайшую повторную дату выполнения доставки по данному маршруту.</span></div>
+</div>
+</div>
+
+<!-- U2. КОДЫ ИСКЛЮЧЕНИЙ -->
+<div class="section" id="undelivered-und_codes">
+<div class="section-header">
+<div class="section-icon" style="background:#f3e5f5">🔢</div>
+<div class="section-title">Коды исключений</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#7b1fa2">Коды — всегда на повторную доставку</div>
+<div class="alert" style="background:#e8f5e9;border-left:4px solid #2e7d32"><span class="alert-icon">✅</span><span>С этими кодами отправления <b>всегда</b> передаются на ближайшую повторную дату:</span></div>
+<div class="info-row" style="margin-top:10px">
+<div class="info-item"><div class="lbl">8 — Опоздание курьера</div><div class="val">Доставка перенесена из-за опоздания курьера.</div></div>
+<div class="info-item"><div class="lbl">64 — Неверный маршрут</div><div class="val">Неправильно определён маршрут доставки.</div></div>
+<div class="info-item"><div class="lbl">84 — ДТП</div><div class="val">Доставка не состоялась по причине ДТП.</div></div>
+</div>
+<div class="alert alert-warning" style="margin-top:10px"><span class="alert-icon">⚠️</span><span>Не забудьте наклеить <b>наклейку «СРОЧНО»</b> на отправления с этими кодами!</span></div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#7b1fa2">Коды — на повторную доставку при выполнении условий</div>
+<div class="info-row">
+<div class="info-item"><div class="lbl">11 — Отсутствие на месте</div><div class="val">Получатель отсутствовал по адресу доставки.</div></div>
+<div class="info-item"><div class="lbl">16 — Отказ от подписи</div><div class="val">Получатель отказался от подписи при получении.</div></div>
+<div class="info-item"><div class="lbl">19/68 — Некорректный адрес</div><div class="val">Некорректный или неизвестный адрес доставки.</div></div>
+<div class="info-item"><div class="lbl">27 — Нерабочий день</div><div class="val">Доставка перенесена из-за нерабочего праздничного дня у получателя.</div></div>
+<div class="info-item"><div class="lbl">44 — Переадресация</div><div class="val">Переадресация/корректировка адреса. Новый адрес находится в пределах подразделения.</div></div>
+<div class="info-item"><div class="lbl">61 — Никто не вышел</div><div class="val">Курьер ждал более 10 минут. Никто не вышел.</div></div>
+<div class="info-item"><div class="lbl">29 — Неверный телефон</div><div class="val">Уточнение номера телефона — неверный телефон.</div></div>
+<div class="info-item"><div class="lbl">602 — Возраст не подтверждён</div><div class="val">Не вручено. Возраст не подтверждён.</div></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#7b1fa2">Коды повреждения</div>
+<div class="info-row">
+<div class="info-item"><div class="lbl">КИ 04 — Нарушение упаковки PE</div><div class="val">Обнаружено нарушение упаковки со стороны Pony Express.</div></div>
+<div class="info-item"><div class="lbl">КИ 38 — Повреждение при ненарушенной упаковке</div><div class="val">Отправление повреждено при ненарушенной упаковке.</div></div>
+</div>
+<div class="alert alert-warning"><span class="alert-icon">⚠️</span><span>При этих кодах — попросить курьера <b>указать подходящий код</b> на отправлении, затем создать событие <b>95 «Перемещён в пределах точки»</b> и передать в зону проблемных отправлений.</span></div>
+</div>
+</div>
+
+<!-- U3. РАБОТА В ПЕГАСЕ -->
+<div class="section" id="undelivered-und_pegasus">
+<div class="section-header">
+<div class="section-icon" style="background:#f3e5f5">💻</div>
+<div class="section-title">Работа в Пегасе</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#7b1fa2">Создание блока событий КП</div>
+<div class="steps">
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">1</div><div class="step-text">Открыть модуль <b>«Ввод блока событий КП»</b> в программе Пегас.</div></div>
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">2</div><div class="step-text">Тип блока — <b>Манифест.</b> Выбрать <b>точку сканирования</b> — место, где осуществляется приём недоставленных отправлений.</div></div>
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">3</div><div class="step-text">Указать <b>регистрируемое событие.</b></div></div>
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">4</div><div class="step-text">Нажать <b>«Добавить код исключения»</b> и выбрать нужные коды или поставить пометку «Все категории».</div></div>
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">5</div><div class="step-text">Сканировать <b>штрихкоды накладных</b> недоставленных отправлений.</div></div>
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">6</div><div class="step-text">Нажать <b>«Сохранить» (F9).</b></div></div>
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">7</div><div class="step-text">Выдать курьеру <b>«Блок событий»</b> как подтверждение сдачи недоставленных отправлений на склад.</div></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#7b1fa2">Печать блока событий через «Регистрацию событий 2»</div>
+<div class="steps">
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">1</div><div class="step-text">Открыть модуль <b>«Регистрация событий 2».</b></div></div>
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">2</div><div class="step-text">Найти принятые недоставленные отправления по дате и курьеру.</div></div>
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">3</div><div class="step-text">Нажать кнопку <b>«Печать»</b> → выбрать формат → распечатать и выдать курьеру.</div></div>
+</div>
+<div class="alert" style="background:#f3e5f5;border-left:4px solid #7b1fa2"><span class="alert-icon">ℹ️</span><span>Блок событий является подтверждением для курьера того, что он сдал недоставленные отправления на склад.</span></div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#7b1fa2">Событие 95 для проблемных отправлений</div>
+<div class="steps">
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">1</div><div class="step-text">Открыть <b>«Ввод блока событий»,</b> тип Манифест.</div></div>
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">2</div><div class="step-text">Выбрать регистрируемое событие <b>95 «Перемещён в пределах точки».</b></div></div>
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">3</div><div class="step-text">Сканировать накладные <b>проблемных отправлений.</b></div></div>
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">4</div><div class="step-text">Сохранить. Передать тележку на <b>этап обработки проблемных отправлений.</b></div></div>
+</div>
+</div>
+</div>
+
+<!-- U4. СОРТИРОВКА -->
+<div class="section" id="undelivered-und_sorting">
+<div class="section-header">
+<div class="section-icon" style="background:#f3e5f5">🔀</div>
+<div class="section-title">Сортировка недоставленных отправлений</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#7b1fa2">Алгоритм сортировки</div>
+<div class="steps">
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">1</div><div class="step-text">Получить недоставленные отправления у курьера.</div></div>
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">2</div><div class="step-text">Осмотреть каждое отправление: упаковка, коды исключения на белой наклейке.</div></div>
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">3</div><div class="step-text">Если <b>условия для повторной доставки выполнены</b> → отсортировать в <b>тележку для повторной доставки.</b></div></div>
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">4</div><div class="step-text">Если <b>данные в таблице превышают</b> данные на отправлении → отсортировать в <b>тележку проблемных отправлений.</b></div></div>
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">5</div><div class="step-text">Тележку с проблемными отправлениями <b>передать на этап обработки проблемных отправлений.</b></div></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#7b1fa2">Сканирование при регистрации</div>
+<div class="steps">
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">1</div><div class="step-text">Отсканировать <b>штрихкод накладной</b> отправления.</div></div>
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">2</div><div class="step-text">Если отправление <b>многоместное:</b> последовательно отсканировать штрихкод накладной, затем штрихкод <b>каждой грузовой этикетки каждого места.</b></div></div>
+</div>
+<div class="alert alert-warning"><span class="alert-icon">⚠️</span><span>Для многоместных отправлений важно сканировать <b>все места по порядку</b> — сначала накладную, потом каждую грузовую этикетку.</span></div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#7b1fa2">Проблемные отправления с повреждениями</div>
+<div class="steps">
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">1</div><div class="step-text">Попросить курьера указать на отправлении подходящий код исключения: <b>КИ 04</b> (нарушение упаковки PE) или <b>КИ 38</b> (повреждение при ненарушенной упаковке).</div></div>
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">2</div><div class="step-text">Создать событие <b>95 «Перемещён в пределах точки».</b></div></div>
+<div class="step"><div class="step-num" style="background:#f3e5f5;color:#7b1fa2">3</div><div class="step-text">Передать тележку с проблемными отправлениями на <b>этап обработки проблемных отправлений.</b></div></div>
+</div>
+</div>
+</div>
+
+</div><!-- /main undelivered -->
+</div><!-- /module-undelivered -->
+
+
 
 
 
 <script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(function(registrations) {
-    for (let r of registrations) { r.unregister(); }
+if ('serviceWorker' in navigator && location.hostname !== 'www.claudeusercontent.com') {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').catch(function(err) {
+      console.log('SW error', err);
+    });
   });
 }
 </script>
 </body>
 </html>
+
