@@ -28,8 +28,21 @@ self.addEventListener('activate', function(e) {
 
 self.addEventListener('fetch', function(e) {
   e.respondWith(
-    caches.match(e.request).then(function(cached) {
-      return cached || fetch(e.request).catch(function() { return caches.match('./index.html'); });
-    })
+    fetch(e.request)
+      .then(function(response) {
+        // Получили свежий ответ — обновляем кэш и возвращаем
+        var copy = response.clone();
+        caches.open(CACHE_NAME).then(function(cache) {
+          cache.put(e.request, copy);
+        });
+        return response;
+      })
+      .catch(function() {
+        // Нет интернета — отдаём из кэша
+        return caches.match(e.request).then(function(cached) {
+          return cached || caches.match('./index.html');
+        });
+      })
   );
 });
+
