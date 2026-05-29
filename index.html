@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>Инструкции Pony Express</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#3451d1">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PE Инструкции">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap');
+
+  :root {
+    --blue: #4A6CF7;
+    --blue-dark: #3451d1;
+    --blue-light: #EEF1FF;
+    --red: #e63131;
+    --red-dark: #b91c1c;
+    --red-light: #fff0f0;
+    --green: #22c55e;
+    --green-light: #dcfce7;
+    --orange: #f97316;
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-400: #94a3b8;
+    --gray-600: #475569;
+    --gray-800: #1e293b;
+    --card: #ffffff;
+    --radius: 16px;
+    --shadow: 0 2px 16px rgba(0,0,0,0.08);
+
+    /* active module colors */
+    --accent: #4A6CF7;
+    --accent-dark: #3451d1;
+    --accent-light: #EEF1FF;
+    --header-grad: linear-gradient(135deg, #3451d1 0%, #4A6CF7 60%, #6a8bff 100%);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #f0f4ff;
+    color: var(--gray-800);
+    min-height: 100vh;
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    transition: background 0.3s;
+  }
+
+  body.pony { background: #fff5f5; }
+  body.postal { background: #f0fdf4; }
+
+  /* ===== MODULE SWITCHER ===== */
+  .module-bar {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    background: var(--header-grad);
+    transition: background 0.4s;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.2);
+  }
+
+  body.pony .module-bar { background: linear-gradient(135deg, #9b0000 0%, #e63131 60%, #f87171 100%); }
+  body.postal .module-bar { background: linear-gradient(135deg, #14532d 0%, #16a34a 60%, #4ade80 100%); }
+
+  .module-top {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px 8px;
+    gap: 10px;
+  }
+
+  .module-logo {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 18px;
+    color: #fff;
+    white-space: nowrap;
+  }
+
+  .module-logo span {
+    background: rgba(255,255,255,0.25);
+    border-radius: 6px;
+    padding: 1px 7px;
+  }
+
+  .module-logo .pony-logo { display: none; }
+
+  body.pony .module-logo .check-logo { display: none; }
+  body.pony .module-logo .pony-logo { display: inline; }
+  body.postal .module-logo .check-logo { display: none; }
+  body.postal .module-logo .postal-logo { display: inline; }
+  .postal-logo { display: none; }
+
+  .module-subtitle {
+    font-size: 11px;
+    color: rgba(255,255,255,0.65);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* Module toggle pills */
+  .module-toggle {
+    display: flex;
+    gap: 6px;
+    padding: 0 16px 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .module-toggle::-webkit-scrollbar { display: none; }
+
+  .mod-btn {
+    flex: 0 0 auto;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 2px solid rgba(255,255,255,0.35);
+    background: transparent;
+    color: rgba(255,255,255,0.75);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s;
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .mod-btn.active {
+    background: rgba(255,255,255,0.22);
+    border-color: rgba(255,255,255,0.8);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  /* Search */
+  .search-wrap {
+    position: relative;
+    padding: 0 16px 12px;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 10px 36px 10px 36px;
+    border-radius: 12px;
+    border: none;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: background 0.2s;
+  }
+
+  .search-input::placeholder { color: rgba(255,255,255,0.55); }
+  .search-input:focus { background: rgba(255,255,255,0.28); }
+
+  .search-icon {
+    position: absolute;
+    left: 27px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 15px;
+    height: 15px;
+    opacity: 0.75;
+  }
+
+  .search-clear {
+    position: absolute;
+    right: 26px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.3);
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #fff;
+    font-size: 11px;
+  }
+  .search-clear.visible { display: flex; }
+
+  /* ===== SEARCH RESULTS ===== */
+  .search-results { display: none; padding: 12px 16px; }
+  .search-results.active { display: block; }
+
+  .result-count { font-size: 12px; color: var(--gray-400); margin-bottom: 10px; font-weight: 500; }
+
+  .result-item {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    border-left: 3px solid var(--accent);
+    transition: transform 0.15s;
+  }
+  .result-item:active { transform: scale(0.98); }
+  .result-item.pony-result { border-left-color: var(--red); }
+  .result-item.postal-result { border-left-color: #16a34a; }
+
+  .result-module-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 10px;
+    margin-bottom: 3px;
+  }
+  .badge-courier { background: var(--blue-light); color: var(--blue); }
+  .badge-pony { background: var(--red-light); color: var(--red); }
+  .badge-postal { background: #dcfce7; color: #14532d; }
+
+  .result-section { font-size: 10px; color: var(--gray-400); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px; }
+  .result-title { font-size: 13px; font-weight: 600; color: var(--gray-800); margin-bottom: 2px; }
+  .result-preview { font-size: 12px; color: var(--gray-600); line-height: 1.4; }
+  .result-preview mark { background: #fef08a; border-radius: 2px; padding: 0 1px; }
+
+  .no-results { display: none; text-align: center; padding: 30px 16px; color: var(--gray-400); font-size: 14px; }
+  .no-results.active { display: block; }
+  .no-results-icon { font-size: 32px; margin-bottom: 8px; }
+
+  /* ===== MODULES ===== */
+  .module { display: none; }
+  .module.active { display: block; }
+
+  /* ===== MAIN CONTENT ===== */
+  .main { padding: 16px; }
+
+  .section-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 16px;
+    scrollbar-width: none;
+  }
+  .section-tabs::-webkit-scrollbar { display: none; }
+
+  .tab-btn {
+    flex-shrink: 0;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 2px solid var(--gray-200);
+    background: var(--card);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gray-600);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .tab-btn.active {
+    background: #4A6CF7;
+    border-color: #4A6CF7;
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  }
+
+  /* postal module tab active color */
+  body.postal #postalTabs .tab-btn.active {
+    background: #16a34a;
+    border-color: #16a34a;
+    color: #fff;
+  }
+
+  /* pony module tab active color */
+  body.pony #ponyTabs .tab-btn.active {
+    background: #e63131;
+    border-color: #e63131;
+    color: #fff;
+  }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .section-icon { width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .section-title { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 18px; color: var(--gray-800); letter-spacing: -0.3px; }
+
+  .card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow); }
+
+  .card-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .card-title::before {
+    content: '';
+    width: 4px;
+    height: 16px;
+    background: var(--accent);
+    border-radius: 2px;
+    display: block;
+    flex-shrink: 0;
+  }
+
+  /* Pony-styled card titles */
+  body.pony .card-title, 
+  #module-pony .card-title { color: var(--red); }
+  #module-pony .card-title::before { background: var(--red); }
+
+  .steps { display: flex; flex-direction: column; gap: 10px; }
+
+  .step { display: flex; gap: 12px; align-items: flex-start; }
+
+  .step-num {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--accent-light); color: var(--accent);
+    font-size: 12px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+    font-family: 'Nunito', sans-serif;
+  }
+
+  .step-text { font-size: 13.5px; line-height: 1.55; color: var(--gray-600); }
+  .step-text b { color: var(--accent); font-weight: 700; }
+  .step-text .kw { color: var(--orange); font-weight: 700; }
+
+  /* info rows for pony */
+  .info-row { display: flex; flex-direction: column; gap: 8px; }
+  .info-item { background: var(--gray-50); border-radius: 10px; padding: 10px 12px; }
+  .info-item .lbl { font-size: 11px; font-weight: 700; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 3px; }
+  .info-item .val { font-size: 13px; color: var(--gray-800); line-height: 1.5; }
+  .info-item .val b { font-weight: 700; }
+
+  .pill-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .pill { font-size: 12px; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+  .pill-red { background: var(--red-light); color: var(--red); }
+  .pill-green { background: var(--green-light); color: #166534; }
+  .pill-blue { background: var(--blue-light); color: var(--blue); }
+  .pill-gray { background: var(--gray-100); color: var(--gray-600); }
+
+  /* bullet list */
+  .blist { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .blist li { font-size: 13.5px; color: var(--gray-600); line-height: 1.5; padding-left: 16px; position: relative; }
+  .blist li::before { content: '•'; position: absolute; left: 0; color: var(--accent); font-weight: 900; }
+  #module-pony .blist li::before { color: var(--red); }
+
+  .alert { border-radius: 10px; padding: 10px 12px; font-size: 13px; line-height: 1.5; margin-top: 12px; display: flex; gap: 8px; }
+  .alert-warning { background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; }
+  .alert-info { background: var(--blue-light); border: 1px solid #c7d2fe; color: #3730a3; }
+  .alert-success { background: var(--green-light); border: 1px solid #bbf7d0; color: #166534; }
+  .alert-red { background: var(--red-light); border: 1px solid #fecaca; color: var(--red-dark); }
+  .alert-icon { font-size: 15px; flex-shrink: 0; }
+
+  mark { background: #fef08a; border-radius: 2px; padding: 0 1px; }
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="module-bar" id="moduleBar">
+  <div class="module-top">
+    <div class="module-logo">
+      <span class="check-logo">чекбокс</span>
+      <span class="pony-logo">🐎 Pony Express</span>
+      <span class="postal-logo">✉️ Почтовые отправления</span>
+    </div>
+    <div class="module-subtitle" id="moduleSubtitle">Инструкция курьера</div>
+  </div>
+  <div class="module-toggle">
+    <button class="mod-btn active" id="btnCourier" onclick="switchModule('courier')">📱 Курьерское приложение</button>
+    <button class="mod-btn" id="btnPony" onclick="switchModule('pony')">📦 Продукты Pony Express</button>
+    <button class="mod-btn" id="btnPostal" onclick="switchModule('postal')">✉️ Почтовые отправления</button>
+  </div>
+  <div class="search-wrap">
+    <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input class="search-input" id="searchInput" type="search" placeholder="Поиск по всем разделам..." autocomplete="off" />
+    <button class="search-clear" id="searchClear">✕</button>
+  </div>
+</div>
+
+<!-- ===== SEARCH RESULTS ===== -->
+<div class="search-results" id="searchResults">
+  <div class="result-count" id="resultCount"></div>
+  <div id="resultsList"></div>
+</div>
+<div class="no-results" id="noResults">
+  <div class="no-results-icon">🔍</div>
+  Ничего не найдено.<br>Попробуйте другой запрос.
+</div>
+
+<!-- ======================================================= -->
+<!-- MODULE 1: COURIER APP -->
+<!-- ======================================================= -->
+<div class="module active" id="module-courier">
+<div class="main">
+  <div class="section-tabs" id="courierTabs">
+    <button class="tab-btn active" onclick="showSection('setup','courier',this)">⚙️ Настройка</button>
+    <button class="tab-btn" onclick="showSection('start','courier',this)">🚀 Начало смены</button>
+    <button class="tab-btn" onclick="showSection('collect','courier',this)">📦 Сбор заказов</button>
+    <button class="tab-btn" onclick="showSection('delivery','courier',this)">🛵 Доставка</button>
+    <button class="tab-btn" onclick="showSection('report','courier',this)">💰 Отчёт</button>
+  </div>
+
+  <!-- 1. НАСТРОЙКА -->
+  <div class="section active" id="courier-setup">
+    <div class="section-header">
+      <div class="section-icon" style="background:#EEF1FF">⚙️</div>
+      <div class="section-title">Настройка и авторизация</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Первичная настройка</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Прежде, чем приступать к работе, <b>обязательно убедитесь, что у вас отключён VPN.</b></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">При первом запуске приложения дайте ему <b>все необходимые доступы:</b> геолокация, уведомления, звонки.</div></div>
+      </div>
+      <div class="alert alert-warning"><span class="alert-icon">⚠️</span><span>Без необходимых разрешений приложение может работать некорректно.</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Авторизация в приложении</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Войдите в приложение с помощью своего <b>штрихкода.</b></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">При успешной авторизации откроется окно <b>«Маршрут»</b> — все ваши заказы и доставки на день.</div></div>
+      </div>
+      <div class="alert alert-info"><span class="alert-icon">ℹ️</span><span>В Маршруте вы видите: номер накладной, статус, компанию, адрес, интервал доставки.</span></div>
+    </div>
+  </div>
+
+  <!-- 2. НАЧАЛО СМЕНЫ -->
+  <div class="section" id="courier-start">
+    <div class="section-header">
+      <div class="section-icon" style="background:#dcfce7">🚀</div>
+      <div class="section-title">Начало смены</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Начало работы</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Найти заказ или накладную — кнопка <b>поиска</b> (лупа) или штрихкод накладной.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Обновить список заказов — кнопка <span class="kw">⟳</span>, запустится обмен данными с Пегасом.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">Построить маршрут — кнопка <b>навигатора</b> у нужного задания.</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">Сообщить клиенту о прибытии — кнопка <b>телефонной трубки</b> возле задания.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. СБОР ЗАКАЗОВ -->
+  <div class="section" id="courier-collect">
+    <div class="section-header">
+      <div class="section-icon" style="background:#fff7ed">📦</div>
+      <div class="section-title">Сбор заказов</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Сбор без приёма оплаты</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">По прибытии выберите <b>нужный заказ.</b></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text"><b>Проверьте</b> описание заказа, наличие сопроводительных документов (доверенность).</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">Всё верно — <b>передвигайте «бегунок» вправо</b> внизу экрана.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Привязка накладной к заказу</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Ручной ввод накладной — кнопка с <b>карандашом.</b> Не используйте дефисы и символы.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Сканирование — кнопка <b>фотокамеры.</b></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">Для грузовых: <b>привяжите места и марки</b> через клавиши у накладной.</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">Нажмите <b>«Подтвердить»</b> → сообщение об успехе → <b>«Хорошо».</b></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Сбор с приёмом оплаты</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Откройте заказ с видом оплаты <b>«Наличными».</b></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Переведите <b>«бегунок» вправо,</b> привяжите накладную, нажмите <b>«Подтвердить».</b></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">Выберите накладную → способ оплаты → номер для чека → <b>«Завершить».</b></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">Повторите для всех накладных, затем <b>завершите задание.</b></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Отказ от отправления (КИ Сбора)</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Нажмите <b>«КИ»</b> в правом верхнем углу экрана задания.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Выберите <b>причину аннуляции</b> → <b>«Готово»</b> → <b>«Хорошо».</b></div></div>
+      </div>
+      <div class="alert alert-warning"><span class="alert-icon">⚠️</span><span>Причины: 401 — офис закрыт, 402 — неверный адрес, 403 — отправитель отсутствует, 404 — ограничение проезда, 405 — пропускная система, 406 — дубль, 407 — отказ отправителя.</span></div>
+    </div>
+  </div>
+
+  <!-- 4. ДОСТАВКА -->
+  <div class="section" id="courier-delivery">
+    <div class="section-header">
+      <div class="section-icon" style="background:#f0fdf4">🛵</div>
+      <div class="section-title">Доставка отправлений</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Безналичный расчёт</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Если в графе «Оплата» — «не брать деньги», нужно только <b>указать данные получателя.</b></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Переведите <b>«бегунок» — «Вручил»,</b> введите ФИО → <b>«Отправить».</b></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">Вернитесь стрелкой вверху или кнопкой <b>«Возврат».</b></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Электронная подпись</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Если в карточке накладной нужна <b>«Электронная подпись»</b> — переведите «бегунок» «Вручил».</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Введите ФИО → получатель расписывается на экране → <b>«Сохранить».</b></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Доставка с оплатой</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">После ввода ФИО <b>выберите тип оплаты.</b></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Введите <b>номер телефона или email</b> для чека. Проведите оплату.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">Кнопка <b>«Чек»</b> — QR-код чека. Нажмите <b>«Хорошо».</b></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Смешанная оплата</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Выберите тип <b>«Смешанная оплата»,</b> введите номер для чека → <b>«Подтвердить».</b></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Введите сумму наличными. Часть картой рассчитается автоматически. Нажмите <b>«Завершить».</b></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Частичный выкуп</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Перейдите в раздел <b>«Детали».</b> Убирайте отказные позиции кнопками <b>«+/-».</b></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Нажмите <b>«Сохранить».</b></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Мультивручение</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Нажмите кнопку <b>штрихкода</b> на главном экране для режима мультивручения.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Выберите накладные вручную или отсканируйте (кнопка <b>фотоаппарата</b>). Вручите.</div></div>
+      </div>
+      <div class="alert alert-warning"><span class="alert-icon">⚠️</span><span>Только для предоплаченных отправлений или с оплатой по договору.</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">КИ Доставки — отказ</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Нажмите <b>«КИ»</b> вверху справа → укажите причину и код исключения → <b>«Готово»</b> → <b>«Хорошо».</b></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Вернуться к заданию: фильтр → найдите «с КИ» → <b>«Возобновить».</b></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Оформление возврата</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">После пробития чека нажмите <b>«Возврат».</b></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Введите телефон или email → <b>«Завершить»</b> → <b>«Чек»</b> для QR-кода.</div></div>
+      </div>
+      <div class="alert alert-warning"><span class="alert-icon">⚠️</span><span><b>Важно:</b> это единственный момент для возврата денег или перебивки чека!</span></div>
+    </div>
+  </div>
+
+  <!-- 5. ОТЧЁТ -->
+  <div class="section" id="courier-report">
+    <div class="section-header">
+      <div class="section-icon" style="background:#fef9c3">💰</div>
+      <div class="section-title">Отчёт по деньгам</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Завершение смены</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Перейдите в <b>Аккаунт</b> → <b>«Отчёт о чеках за день».</b></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Сумма <b>наличными</b> в отчёте должна быть сдана в кассу.</div></div>
+      </div>
+      <div class="alert alert-success"><span class="alert-icon">✅</span><span>В отчёте: приход наличными и картой, суммы возвратов по каждой накладной за день.</span></div>
+    </div>
+  </div>
+
+</div><!-- /main courier -->
+</div><!-- /module-courier -->
+
+
+<!-- ======================================================= -->
+<!-- MODULE 2: PONY EXPRESS -->
+<!-- ======================================================= -->
+<div class="module" id="module-pony">
+<div class="main">
+  <div class="section-tabs" id="ponyTabs">
+    <button class="tab-btn active" style="--accent:#e63131" onclick="showSection('classify','pony',this)">📋 Классификация</button>
+    <button class="tab-btn" onclick="showSection('forall','pony',this)">🌍 Для всех</button>
+    <button class="tab-btn" onclick="showSection('contract','pony',this)">📄 По договору</button>
+    <button class="tab-btn" onclick="showSection('cash','pony',this)">💵 Без договора</button>
+    <button class="tab-btn" onclick="showSection('ecom','pony',this)">🛒 ECOM</button>
+    <button class="tab-btn" onclick="showSection('contract_log','pony',this)">🏭 Контрактная</button>
+  </div>
+
+  <!-- P1. КЛАССИФИКАЦИЯ -->
+  <div class="section active" id="pony-classify">
+    <div class="section-header">
+      <div class="section-icon" style="background:#fff0f0">📋</div>
+      <div class="section-title">Классификация доставки</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Основные понятия</div>
+      <div class="info-row">
+        <div class="info-item">
+          <div class="lbl">Режим доставки</div>
+          <div class="val">Условия транспортировки: сроки доставки, способ перевозки и стоимость отправления.</div>
+        </div>
+        <div class="info-item">
+          <div class="lbl">Дополнительные услуги</div>
+          <div class="val">Услуги за дополнительную плату, не являющиеся обязательными.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">По пункту назначения</div>
+      <ul class="blist">
+        <li><b>По городу</b> — доставка в пределах одного города</li>
+        <li><b>По России и странам присутствия</b> — в пределах региональной сети Pony Express</li>
+        <li><b>Международная</b> — в/из стран, не входящих в региональную сеть</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">По сегменту бизнеса</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">C2C</div><div class="val">Физические и юридические лица без договора. Оплата наличными.</div></div>
+        <div class="info-item"><div class="lbl">B2B / B2C</div><div class="val">Юридические лица, заключившие договор. Оплата по договору.</div></div>
+        <div class="info-item"><div class="lbl">ECOMMERCE</div><div class="val">Юридические лица — интернет-магазины с договором Pony Express.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">По транспортировке</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">Стандарт</div><div class="val">Наземный транспорт — автомобиль.</div></div>
+        <div class="info-item"><div class="lbl">Экспресс</div><div class="val">Воздушный транспорт — самолёт.</div></div>
+        <div class="info-item"><div class="lbl">Мультимодальные перевозки</div><div class="val">Автомобильный, железнодорожный и водный транспорт без перетарки груза.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">По способу приёма / отправки</div>
+      <div class="pill-list">
+        <span class="pill pill-red">Дверь (адрес клиента)</span>
+        <span class="pill pill-red">Экспресс-центр (ЭЦ)</span>
+        <span class="pill pill-red">ПВЗ / Почтомат</span>
+        <span class="pill pill-red">Терминал</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Виды доставки (маршруты)</div>
+      <ul class="blist">
+        <li>От двери до двери</li>
+        <li>От двери до экспресс-центра</li>
+        <li>От двери до ПВЗ / почтомата</li>
+        <li>От двери до терминала</li>
+        <li>От терминала до двери</li>
+        <li>От терминала до терминала</li>
+        <li>От терминала до экспресс-центра</li>
+        <li>От терминала до ПВЗ</li>
+        <li>От экспресс-центра до экспресс-центра</li>
+        <li>От экспресс-центра до двери</li>
+        <li>От экспресс-центра до ПВЗ</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">Типы клиентов</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">По договору</div><div class="val">Юридические лица и ИП, заключившие договор с Pony Express.</div></div>
+        <div class="info-item"><div class="lbl">За наличный расчёт</div><div class="val">Физические лица без договора.</div></div>
+        <div class="info-item"><div class="lbl">ECOM</div><div class="val">Интернет-магазины с договором на доставку заказов.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P2. ДЛЯ ВСЕХ -->
+  <div class="section" id="pony-forall">
+    <div class="section-header">
+      <div class="section-icon" style="background:#fff0f0">🌍</div>
+      <div class="section-title">Продукты для всех клиентов</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Доставка ко времени — ДКВ 10</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">Описание</div><div class="val">Гарантированная доставка с 8:00 до 10:00 утра в течение 1–2 рабочих дней.</div></div>
+        <div class="info-item"><div class="lbl">Виды доставки</div><div class="val">Дверь–дверь, дверь–экспресс-центр.</div></div>
+        <div class="info-item"><div class="lbl">Тариф</div><div class="val">Зависит от веса, тарифной зоны и вида доставки.</div></div>
+        <div class="info-item"><div class="lbl">Упаковка (входит в тариф)</div><div class="val">Конверт картонный; КурьерПак 37,5×40 см; КурьерПак 40×55 см.</div></div>
+        <div class="info-item"><div class="lbl">Ограничения</div><div class="val">Сумма сторон ≤ 150 см; одна из сторон ≤ 50 см; вес ≤ 31 кг; только одноместные отправления.</div></div>
+        <div class="info-item"><div class="lbl">География</div><div class="val">В пределах МКАД (Москва) и КАД (СПб).</div></div>
+      </div>
+      <div class="alert alert-red"><span class="alert-icon">🚫</span><span>Запрещены: грузы для авиаперевозки, алкоголь, литиевые батареи.</span></div>
+      <div class="alert alert-info"><span class="alert-icon">ℹ️</span><span>Включено: ПРР, SMS-оповещение. При позднем оформлении — автопереключение на «Экспресс».</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Экспресс</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">Описание</div><div class="val">Срочная доставка воздушным транспортом по России, Беларуси и Казахстану.</div></div>
+        <div class="info-item"><div class="lbl">Виды доставки</div><div class="val">Дверь–дверь, дверь–экспресс-центр, экспресс-центр–дверь, экспресс-центр–экспресс-центр.</div></div>
+        <div class="info-item"><div class="lbl">Упаковка</div><div class="val">Конверт картонный; КурьерПак 37,5×40 см; КурьерПак 40×55 см.</div></div>
+        <div class="info-item"><div class="lbl">Надбавки</div><div class="val">Топливная надбавка, КГО.</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Стандарт</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">Описание</div><div class="val">Несрочная доставка наземным транспортом по России, Беларуси и Казахстану.</div></div>
+        <div class="info-item"><div class="lbl">Особенности</div><div class="val">ПРР для отправлений свыше 30 кг не входит в стоимость. При приёме/доставке в ЭЦ — вес до 80 кг. Калининградская область — таможенное оформление.</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Сборные грузы</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">Ограничения</div><div class="val">Вес одного места — до 300 кг; одна сторона ≤ 240 см; сумма трёх измерений ≤ 450 см.</div></div>
+      </div>
+      <div class="alert alert-warning"><span class="alert-icon">⚠️</span><span>В некоторых городах — особые правила. При ограничениях по терминалу необходимо подключить «Первая миля» и/или «Последняя миля».</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Международные документы суперэкспресс (экспорт)</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">Описание</div><div class="val">Сверхбыстрая доставка документов за пределы РФ, кроме стран-присутствия Pony Express.</div></div>
+        <div class="info-item"><div class="lbl">Тариф</div><div class="val">Зависит от веса и города доставки. Контрольные сроки: доставка в день приёма.</div></div>
+        <div class="info-item"><div class="lbl">Упаковка</div><div class="val">Конверт картонный; КурьерПак 37,5×40 см; КурьерПак 40×55 см.</div></div>
+        <div class="info-item"><div class="lbl">Виды доставки</div><div class="val">Только дверь–дверь.</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Дополнительные услуги (для всех)</div>
+      <div class="info-row">
+        <div class="info-item">
+          <div class="lbl">Приём по описи вложения — код 1041</div>
+          <div class="val">Опись составляется на бланках PE в 3 экз. Бланки на сайте www.ponyexpress.ru. Сумма ОЦ = сумме ОЦ всех предметов.</div>
+        </div>
+        <div class="info-item">
+          <div class="lbl">Погрузочно-разгрузочные работы (ПРР)</div>
+          <div class="val">При сборе: коды 2051–2054. При доставке: 2064, 2066–2068. Применяется от 30 кг. Оплачивается дополнительно.</div>
+        </div>
+        <div class="info-item">
+          <div class="lbl">Премиум (сейф-пакет) — код 1014</div>
+          <div class="val">Дополнительная упаковка для ювелирных изделий, часов, знаков отличия, монет. Только по договору.</div>
+        </div>
+        <div class="info-item">
+          <div class="lbl">Услуги хранения — код 2006</div>
+          <div class="val">Бесплатное хранение: до 20 кг — 15 кал. дней; свыше 20 кг — 7 кал. дней. Недоступно для EMS, ПВЗ, Экспресс/Экспресс ECOM.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P3. ПО ДОГОВОРУ -->
+  <div class="section" id="pony-contract">
+    <div class="section-header">
+      <div class="section-icon" style="background:#fff0f0">📄</div>
+      <div class="section-title">Только для клиентов с договором</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Кто такие клиенты по договору?</div>
+      <div class="alert alert-red"><span class="alert-icon">ℹ️</span><span>Юридические лица и ИП, заключившие договор с Pony Express (B2B, B2C). Оплата по договору.</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Экспресс ECOM (для договорников)</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">Описание</div><div class="val">Срочная доставка товаров интернет-торговли воздушным транспортом.</div></div>
+        <div class="info-item"><div class="lbl">Виды доставки</div><div class="val">Дверь–дверь, дверь–ПВЗ, дверь–экспресс-центр, дверь–терминал, ЭЦ–дверь, ЭЦ–ПВЗ и другие комбинации.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Сервис уплаты таможенных платежей</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">Для кого</div><div class="val">Физическим лицам при получении международного груза через Pony Express, если нужна таможенная пошлина.</div></div>
+        <div class="info-item"><div class="lbl">Сервис</div><div class="val">Pony Express предоставляет возможность удалённо оплатить таможенную пошлину. Инструкция — на www.ponyexpress.ru. Сервис платный.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P4. БЕЗ ДОГОВОРА -->
+  <div class="section" id="pony-cash">
+    <div class="section-header">
+      <div class="section-icon" style="background:#fff0f0">💵</div>
+      <div class="section-title">Для клиентов без договора</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Кто такие клиенты за наличный расчёт?</div>
+      <div class="alert alert-red"><span class="alert-icon">ℹ️</span><span>Физические лица (C2C), работающие без договора. Предоставляются акционные режимы доставки.</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Акционные режимы доставки</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">Особенность</div><div class="val">Для клиентов за наличный расчёт компания предоставляет специальные акционные режимы доставки с выгодными условиями.</div></div>
+        <div class="info-item"><div class="lbl">Виды доставки</div><div class="val">Дверь–дверь, дверь–экспресс-центр, экспресс-центр–дверь, экспресс-центр–экспресс-центр, дверь–ПВЗ, экспресс-центр–ПВЗ, терминал–дверь, терминал–экспресс-центр, терминал–ПВЗ.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P5. ECOM -->
+  <div class="section" id="pony-ecom">
+    <div class="section-header">
+      <div class="section-icon" style="background:#fff0f0">🛒</div>
+      <div class="section-title">Для клиентов ECOM</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Кто такие клиенты ECOM?</div>
+      <div class="alert alert-red"><span class="alert-icon">ℹ️</span><span>Интернет-магазины, заключившие договор с Pony Express на доставку заказов покупателям.</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Экспресс ECOM</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">Описание</div><div class="val">Срочная воздушная доставка для e-commerce. Широкий выбор вариантов получения.</div></div>
+        <div class="info-item"><div class="lbl">Виды доставки</div><div class="val">Дверь–дверь, дверь–ПВЗ (почтомат), дверь–экспресс-центр, дверь–терминал и обратные направления.</div></div>
+        <div class="info-item"><div class="lbl">Ограничения</div><div class="val">Вес одного места — до 300 кг. Одна сторона ≤ 240 см. Сумма трёх измерений ≤ 450 см.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Стандарт ECOM</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">Описание</div><div class="val">Несрочная наземная доставка для интернет-магазинов по России, Беларуси, Казахстану.</div></div>
+        <div class="info-item"><div class="lbl">Тариф</div><div class="val">Зависит от веса и тарифной зоны.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P6. КОНТРАКТНАЯ ЛОГИСТИКА -->
+  <div class="section" id="pony-contract_log">
+    <div class="section-header">
+      <div class="section-icon" style="background:#fff0f0">🏭</div>
+      <div class="section-title">Контрактная логистика</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Автомобильные перевозки (FTL)</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">FTL (Full Truck Load)</div><div class="val">«Прямая машина» — перевозки автомобилями, полностью загруженными грузом одного клиента.</div></div>
+        <div class="info-item"><div class="lbl">Территория</div><div class="val">Россия, страны ближнего и дальнего зарубежья. Различные типы автотранспорта.</div></div>
+        <div class="info-item"><div class="lbl">Условия</div><div class="val">Только после заключения договора с Pony Express. Тариф определяется индивидуально.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Мультимодальные перевозки</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">Описание</div><div class="val">Комплексное решение с использованием автомобильного, железнодорожного и водного транспорта. Груз не требует перетарки.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Категории грузов — ограничения</div>
+      <div class="alert alert-red"><span class="alert-icon">🚫</span><span>Не принимаются: грузы с температурным режимом хранения, опасные грузы, сверхгабаритные (одна сторона более 3 м, вес свыше 2,5 т), алкогольная продукция.</span></div>
+    </div>
+  </div>
+
+</div><!-- /main pony -->
+</div><!-- /module-pony -->
+
+
+<script>
+// ===== MODULE SWITCHER =====
+let currentModule = 'courier';
+
+function switchModule(mod) {
+  currentModule = mod;
+
+  // modules
+  var modules = ['courier', 'pony', 'postal'];
+  modules.forEach(function(m) {
+    var el = document.getElementById('module-' + m);
+    if (el) { el.classList.remove('active'); if (m === mod) el.classList.add('active'); }
+    var btn = document.getElementById('btn' + m.charAt(0).toUpperCase() + m.slice(1));
+    if (btn) { btn.classList.remove('active'); if (m === mod) btn.classList.add('active'); }
+  });
+
+  // body theme
+  document.body.classList.remove('pony', 'postal');
+  if (mod === 'pony') document.body.classList.add('pony');
+  if (mod === 'postal') document.body.classList.add('postal');
+
+  // subtitle
+  var subtitles = { courier: 'Инструкция курьера', pony: 'Продукты и услуги', postal: 'Почтовые отправления' };
+  document.getElementById('moduleSubtitle').textContent = subtitles[mod] || '';
+
+  // re-apply pony/postal tab accent colors for currently active tab
+  var ponyActive = document.querySelectorAll('#ponyTabs .tab-btn.active');
+  ponyActive.forEach(function(t) { t.style.background = '#e63131'; t.style.borderColor = '#e63131'; t.style.color = '#fff'; });
+  var postalActive = document.querySelectorAll('#postalTabs .tab-btn.active');
+  postalActive.forEach(function(t) { t.style.background = '#16a34a'; t.style.borderColor = '#16a34a'; t.style.color = '#fff'; });
+
+  // scroll active module button into view
+  var activeModBtn = document.getElementById('btn' + mod.charAt(0).toUpperCase() + mod.slice(1));
+  if (activeModBtn) {
+    try { activeModBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); } catch(e) {}
+  }
+
+  clearSearch();
+}
+
+function showSection(id, mod, btn) {
+  var prefix = mod + '-';
+  document.querySelectorAll('#module-' + mod + ' .section').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('#module-' + mod + ' .tab-btn').forEach(function(b) {
+    b.classList.remove('active');
+    b.style.background = '';
+    b.style.borderColor = '';
+    b.style.color = '';
+  });
+  var sec = document.getElementById(prefix + id);
+  if (sec) sec.classList.add('active');
+  btn.classList.add('active');
+  try { btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); } catch(e) { btn.scrollIntoView(false); }
+}
+
+// ===== SEARCH DATA =====
+const searchData = [
+  // COURIER
+  { module:'courier', moduleLabel:'Курьерское приложение', section:'setup', sectionName:'Настройка', title:'Отключение VPN', text:'Прежде чем приступать к работе, обязательно убедитесь что у вас отключён VPN.' },
+  { module:'courier', moduleLabel:'Курьерское приложение', section:'setup', sectionName:'Настройка', title:'Разрешения приложения', text:'При первом запуске дайте приложению все необходимые доступы: геолокация, уведомления, звонки.' },
+  { module:'courier', moduleLabel:'Курьерское приложение', section:'setup', sectionName:'Настройка', title:'Авторизация по штрихкоду', text:'Войдите в приложение с помощью своего штрихкода. При успешной авторизации откроется окно Маршрут.' },
+  { module:'courier', moduleLabel:'Курьерское приложение', section:'start', sectionName:'Начало смены', title:'Поиск заказа или накладной', text:'Найти заказ или накладную — кнопка поиска лупа или штрихкод накладной.' },
+  { module:'courier', moduleLabel:'Курьерское приложение', section:'start', sectionName:'Начало смены', title:'Обновление списка (Пегас)', text:'Нажмите кнопку обновления для обмена данными с Пегасом и обновления заказов.' },
+  { module:'courier', moduleLabel:'Курьерское приложение', section:'start', sectionName:'Начало смены', title:'Навигатор', text:'Чтобы построить маршрут — нажмите кнопку навигатора у нужного задания.' },
+  { module:'courier', moduleLabel:'Курьерское приложение', section:'collect', sectionName:'Сбор заказов', title:'Сбор без оплаты — бегунок', text:'Выберите нужный заказ, проверьте описание и документы, передвиньте бегунок вправо.' },
+  { module:'courier', moduleLabel:'Курьерское приложение', section:'collect', sectionName:'Сбор заказов', title:'Привязка накладной', text:'Ручной ввод через карандаш или сканирование через фотокамеру. Не используйте дефисы и символы.' },
+  { module:'courier', moduleLabel:'Курьерское приложение', section:'collect', sectionName:'Сбор заказов', title:'Сбор с приёмом оплаты наличными', text:'Откройте заказ с оплатой Наличными, переведите бегунок, привяжите накладную, выберите способ оплаты, введите номер для чека, нажмите Завершить.' },
+  { module:'courier', moduleLabel:'Курьерское приложение', section:'collect', sectionName:'Сбор заказов', title:'Отказ от отправления КИ Сбора', text:'Нажмите КИ в правом верхнем углу, выберите причину аннуляции, нажмите Готово и Хорошо. Причины: 401 офис закрыт, 402 неверный адрес, 403 отправитель отсутствует.' },
+  { module:'courier', moduleLabel:'Курьерское приложение', section:'delivery', sectionName:'Доставка', title:'Доставка безналичный расчёт', text:'Если в графе Оплата не брать деньги, укажите данные получателя, переведите бегунок Вручил, введите ФИО, нажмите Отправить.' },
+  { module:'courier', moduleLabel:'Курьерское приложение', section:'delivery', sectionName:'Доставка', title:'Электронная подпись получателя', text:'Переведите бегунок Вручил, введите ФИО получателя. Получатель расписывается на экране, нажмите Сохранить.' },
+  { module:'courier', moduleLabel:'Курьерское приложение', section:'delivery', sectionName:'Доставка', title:'Доставка с оплатой', text:'Выберите тип оплаты, введите номер телефона или email для чека, проведите оплату, нажмите Хорошо.' },
+  { module:'courier', moduleLabel:'Курьерское приложение', section:'delivery', sectionName:'Доставка', title:'Смешанная оплата', text:'Выберите тип Смешанная оплата, введите номер для чека, нажмите Подтвердить, введите сумму наличными. Часть картой рассчитается автоматически.' },
+  { module:'courier', moduleLabel:'Курьерское приложение', section:'delivery', sectionName:'Доставка', title:'Частичный выкуп товаров', text:'Перейдите в Детали. Убирайте ненужные товары кнопками плюс-минус. Нажмите Сохранить.' },
+  { module:'courier', moduleLabel:'Курьерское приложение', section:'delivery', sectionName:'Доставка', title:'Мультивручение', text:'Нажмите кнопку штрихкода на главном экране для мультивручения. Выберите накладные или отсканируйте. Только для предоплаты.' },
+  { module:'courier', moduleLabel:'Курьерское приложение', section:'delivery', sectionName:'Доставка', title:'КИ Доставки отказ', text:'Нажмите КИ вверху справа, укажите причину и код исключения, нажмите Готово и Хорошо.' },
+  { module:'courier', moduleLabel:'Курьерское приложение', section:'delivery', sectionName:'Доставка', title:'Возврат денег клиенту', text:'После пробития чека нажмите Возврат, введите телефон или email, нажмите Завершить. Это единственный момент для возврата денег или перебивки чека!' },
+  { module:'courier', moduleLabel:'Курьерское приложение', section:'report', sectionName:'Отчёт', title:'Отчёт о чеках за день', text:'Перейдите в Аккаунт, выберите Отчёт о чеках за день. Сумма наличными должна быть сдана в кассу.' },
+
+  // PONY
+  { module:'pony', moduleLabel:'Pony Express', section:'classify', sectionName:'Классификация', title:'Режимы доставки и доп. услуги', text:'Режимы доставки — условия транспортировки: сроки, способ, стоимость. Доп. услуги — за дополнительную плату, необязательные.' },
+  { module:'pony', moduleLabel:'Pony Express', section:'classify', sectionName:'Классификация', title:'Виды по пункту назначения', text:'По городу, по России и странам присутствия, международная доставка.' },
+  { module:'pony', moduleLabel:'Pony Express', section:'classify', sectionName:'Классификация', title:'Сегменты бизнеса C2C B2B ECOM', text:'C2C физлица без договора, B2B/B2C юрлица по договору, ECOMMERCE интернет-магазины с договором.' },
+  { module:'pony', moduleLabel:'Pony Express', section:'classify', sectionName:'Классификация', title:'Виды транспортировки', text:'Стандарт — автомобиль. Экспресс — самолёт. Мультимодальные перевозки — авто, ж/д, водный транспорт без перетарки.' },
+  { module:'pony', moduleLabel:'Pony Express', section:'classify', sectionName:'Классификация', title:'Способы приёма и отправки', text:'С адреса клиента дверь, через экспресс-центр ЭЦ, через ПВЗ почтомат, через терминал.' },
+  { module:'pony', moduleLabel:'Pony Express', section:'forall', sectionName:'Продукты для всех', title:'ДКВ 10 — доставка к 10:00', text:'Гарантированная доставка с 8:00 до 10:00 утра за 1–2 рабочих дня. Ограничения: вес до 31 кг, сумма сторон до 150 см. Только МКАД и КАД.' },
+  { module:'pony', moduleLabel:'Pony Express', section:'forall', sectionName:'Продукты для всех', title:'Экспресс — срочная доставка', text:'Срочная доставка воздушным транспортом по России, Беларуси и Казахстану.' },
+  { module:'pony', moduleLabel:'Pony Express', section:'forall', sectionName:'Продукты для всех', title:'Стандарт — несрочная доставка', text:'Несрочная доставка наземным транспортом. ПРР свыше 30 кг не входит в стоимость. Вес до 80 кг в ЭЦ.' },
+  { module:'pony', moduleLabel:'Pony Express', section:'forall', sectionName:'Продукты для всех', title:'Сборные грузы', text:'Вес до 300 кг, одна сторона до 240 см, сумма трёх измерений до 450 см. Особые правила для некоторых городов с подключением Первая миля или Последняя миля.' },
+  { module:'pony', moduleLabel:'Pony Express', section:'forall', sectionName:'Продукты для всех', title:'Международные документы суперэкспресс', text:'Сверхбыстрая доставка документов за пределы РФ кроме стран-присутствия. Только дверь-дверь. Доставка в день приёма.' },
+  { module:'pony', moduleLabel:'Pony Express', section:'forall', sectionName:'Доп. услуги', title:'Приём по описи вложения — код 1041', text:'Опись на бланках PE в 3 экземплярах. Бланки на сайте ponyexpress.ru. Сумма ОЦ равна сумме ОЦ всех предметов.' },
+  { module:'pony', moduleLabel:'Pony Express', section:'forall', sectionName:'Доп. услуги', title:'ПРР погрузочно-разгрузочные работы', text:'При сборе коды 2051–2054. При доставке 2064, 2066–2068. Применяется от 30 кг. Оплачивается отдельно.' },
+  { module:'pony', moduleLabel:'Pony Express', section:'forall', sectionName:'Доп. услуги', title:'Премиум упаковка сейф-пакет — код 1014', text:'Дополнительная упаковка для ювелирных изделий, часов, знаков отличия, монет. Только по договору.' },
+  { module:'pony', moduleLabel:'Pony Express', section:'forall', sectionName:'Доп. услуги', title:'Услуги хранения — код 2006', text:'Бесплатное хранение: до 20 кг — 15 дней; свыше 20 кг — 7 дней. Недоступно для EMS, ПВЗ, Экспресс ECOM.' },
+  { module:'pony', moduleLabel:'Pony Express', section:'contract', sectionName:'По договору', title:'Клиенты по договору B2B B2C', text:'Юридические лица и ИП, заключившие договор с Pony Express. Оплата по договору.' },
+  { module:'pony', moduleLabel:'Pony Express', section:'contract', sectionName:'По договору', title:'Экспресс ECOM для договорников', text:'Срочная воздушная доставка для интернет-торговли. Виды доставки: дверь-дверь, дверь-ПВЗ, дверь-ЭЦ и другие комбинации.' },
+  { module:'pony', moduleLabel:'Pony Express', section:'contract', sectionName:'По договору', title:'Таможенные платежи физлицам', text:'При получении международного груза физлицом, требующего таможенной пошлины, Pony Express предоставляет сервис удалённой оплаты. Инструкция на ponyexpress.ru. Сервис платный.' },
+  { module:'pony', moduleLabel:'Pony Express', section:'cash', sectionName:'Без договора', title:'Клиенты за наличный расчёт C2C', text:'Физические лица без договора. Акционные режимы доставки с выгодными условиями.' },
+  { module:'pony', moduleLabel:'Pony Express', section:'ecom', sectionName:'ECOM', title:'Клиенты ECOM интернет-магазины', text:'Интернет-магазины с договором на доставку заказов покупателям.' },
+  { module:'pony', moduleLabel:'Pony Express', section:'ecom', sectionName:'ECOM', title:'Экспресс ECOM', text:'Срочная воздушная доставка для e-commerce. Вес до 300 кг. Сторона до 240 см.' },
+  { module:'pony', moduleLabel:'Pony Express', section:'ecom', sectionName:'ECOM', title:'Стандарт ECOM', text:'Несрочная наземная доставка для интернет-магазинов по России, Беларуси, Казахстану.' },
+  { module:'pony', moduleLabel:'Pony Express', section:'contract_log', sectionName:'Контрактная логистика', title:'FTL автомобильные перевозки', text:'Полностью загруженный грузовик одного клиента. Россия и зарубежье. Только по договору. Тариф индивидуально.' },
+  { module:'pony', moduleLabel:'Pony Express', section:'contract_log', sectionName:'Контрактная логистика', title:'Мультимодальные перевозки', text:'Авто, железная дорога и водный транспорт. Груз не требует перетарки.' },
+  { module:'pony', moduleLabel:'Pony Express', section:'contract_log', sectionName:'Контрактная логистика', title:'Ограничения контрактной логистики', text:'Не принимаются: грузы с температурным режимом, опасные, сверхгабаритные свыше 3 м или 2.5 тонн, алкоголь.' },
+
+  // POSTAL
+  { module:'postal', moduleLabel:'Почтовые отправления', section:'first_mile', sectionName:'Первая миля', title:'Что такое первая миля', text:'Первая миля — стартовая точка движения отправления в пункт доставки. Принимаются отправления от курьера или в ППВЗ.' },
+  { module:'postal', moduleLabel:'Почтовые отправления', section:'first_mile', sectionName:'Первая миля', title:'Вход в программу Пегас', text:'Нажмите ярлык Pony Express Пегас на рабочем столе Windows. Программа запоминает настройки последнего сканирования пользователем.' },
+  { module:'postal', moduleLabel:'Почтовые отправления', section:'first_mile', sectionName:'Первая миля', title:'Типы событий — 71 прибыл на склад', text:'Событие 71 — отправление поступило на склад. В полях Примечание и Номер курьера указывается табельный номер курьера.' },
+  { module:'postal', moduleLabel:'Почтовые отправления', section:'first_mile', sectionName:'Первая миля', title:'Типы событий — 72 79 81 88 91 95 210', text:'72 проинвентаризирован, 79 внесён в консолидацию, 81 убыл со склада, 88 прибыл в пункт доставки, 91 внесён в контейнер, 95 перемещён в пределах точки, 210 инвентаризация КП.' },
+  { module:'postal', moduleLabel:'Почтовые отправления', section:'first_mile', sectionName:'Первая миля', title:'Создание блока событий манифест', text:'Откройте Ввод блока событий, тип блока Манифест. Укажите точку сканирования. Выставьте событие 71. Укажите табельный номер курьера. Сканируйте отправления. Сохранить F9.' },
+  { module:'postal', moduleLabel:'Почтовые отправления', section:'first_mile', sectionName:'Первая миля', title:'Виды накладных Pony Express', text:'Накладная со штрихкодом — для внутригородских отправлений. Живая накладная с DELP — трёхзначное обозначение узла, откуда ушло отправление.' },
+  { module:'postal', moduleLabel:'Почтовые отправления', section:'first_mile', sectionName:'Первая миля', title:'Накладная — основной документ', text:'Накладная Pony Express — основной сопроводительный документ на каждом отправлении. При многоместной отправке накладная крепится на первое место, грузовая этикетка — на все места.' },
+  { module:'postal', moduleLabel:'Почтовые отправления', section:'first_mile', sectionName:'Первая миля', title:'Приложение по объёмному весу', text:'Заполняются поля Длина, Ширина, Высота, Объёмный вес по каждому месту. Подписывается курьером или экспедитором.' },
+  { module:'postal', moduleLabel:'Почтовые отправления', section:'first_mile', sectionName:'Первая миля', title:'Акт приёма-передачи объявленная ценность', text:'Требуется если объявленная ценность более 500 000 рублей кроме интернет-магазинов. Объявленная ценность — страховочная сумма, совпадает с накладной.' },
+  { module:'postal', moduleLabel:'Почтовые отправления', section:'first_mile', sectionName:'Первая миля', title:'Идентификационная наклейка белая пустая', text:'Пустая белая наклейка — для указания кода исключения и информации о проблеме. Наклеивается на первое место рядом с накладной.' },
+  { module:'postal', moduleLabel:'Почтовые отправления', section:'marking', sectionName:'Маркировка', title:'Модуль маркировки по штрихкоду', text:'Откройте модуль Маркировка по штрихкоду 2. Введите клиентский номер, номер места или накладной. Выберите формат печати 102x156 мм и принтер. Нажмите Создать накладную/наклейку.' },
+  { module:'postal', moduleLabel:'Почтовые отправления', section:'marking', sectionName:'Маркировка', title:'Режимы печати наклеек', text:'Для каждого места отдельно, для всех мест по объекту, смешанный режим, по одному договору.' },
+  { module:'postal', moduleLabel:'Почтовые отправления', section:'second_mile', sectionName:'Вторая миля', title:'Приём на второй миле', text:'На второй миле отправления поступают из других узлов сети. Проводится приём, регистрация событий и работа с неопознанными отправлениями.' },
+  { module:'postal', moduleLabel:'Почтовые отправления', section:'second_mile', sectionName:'Вторая миля', title:'Алгоритм приёма вторая миля', text:'Открыть Регистрация событий 2. Создать событие 71 Прибыл на склад. Сканировать штрихкоды. Через Отчёты открыть Сравнение блоков для контроля расхождений.' },
+  { module:'postal', moduleLabel:'Почтовые отправления', section:'second_mile', sectionName:'Вторая миля', title:'Неопознанные отправления код 168', text:'Если нет маркировки или она нечитаема: 1. Наклеить белую наклейку и указать 168 код Неопознанное отправление. 2. Отложить в зону проблемных. 3. Передать на участок КП.' },
+  { module:'postal', moduleLabel:'Почтовые отправления', section:'second_mile', sectionName:'Вторая миля', title:'Отправления с КИ некорректный адрес', text:'Указать 2 код исключения Указан некорректный адрес получателя. Передать в зону проблемных. Зарегистрировать событие 81 Убыл со склада. В примечании указать код исключения.' },
+  { module:'postal', moduleLabel:'Почтовые отправления', section:'sorting', sectionName:'Сортировка и сборка', title:'Сортировка входящих отправлений', text:'Отправления сортируются по маршрутам доставки по точкам назначения. С некорректным адресом — в зону проблемных, событие 81, в примечании код исключения.' },
+  { module:'postal', moduleLabel:'Почтовые отправления', section:'sorting', sectionName:'Сортировка и сборка', title:'Сбор консолидации мешков', text:'Сбор по матрице отправок. Событие 79 Внесён в консолидацию, выбрать точку назначения, сканировать накладные. Затем 91 Внесён в контейнер. Затем 81 Убыл со склада — сканировать наклейку консолидации.' },
+  { module:'postal', moduleLabel:'Почтовые отправления', section:'sorting', sectionName:'Сортировка и сборка', title:'REG-MOW виды консолидации', text:'REG–MOW — в манифест только конверты и пакеты транзитом через Булатниково в филиалы Москвы (УОК-Запад, УОК-Восток, УОК-Юг). Вес мешка не более 20 кг.' },
+  { module:'postal', moduleLabel:'Почтовые отправления', section:'sorting', sectionName:'Сортировка и сборка', title:'Наклейка на мешок консолидации', text:'Закрепить наклейку рядом с мешком консолидации. При событии Убыл со склада сканировать наклейку консолидации, не накладные вложений. Перенести в зону погрузки.' },
+];
+
+function highlight(text, query) {
+  if (!query) return text;
+  const re = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+  return text.replace(re, '<mark>$1</mark>');
+}
+
+const input = document.getElementById('searchInput');
+const clearBtn = document.getElementById('searchClear');
+const searchResultsDiv = document.getElementById('searchResults');
+const resultsList = document.getElementById('resultsList');
+const resultCount = document.getElementById('resultCount');
+const noResults = document.getElementById('noResults');
+
+function getMainContent() {
+  return document.querySelector('.module.active .main');
+}
+
+input.addEventListener('input', function() {
+  var q = this.value.trim().toLowerCase();
+  if (q.length > 0) { clearBtn.classList.add('visible'); } else { clearBtn.classList.remove('visible'); }
+
+  var mainEl = getMainContent();
+
+  if (!q) {
+    searchResultsDiv.classList.remove('active');
+    noResults.classList.remove('active');
+    if (mainEl) mainEl.style.display = '';
+    return;
+  }
+
+  if (mainEl) mainEl.style.display = 'none';
+
+  var found = searchData.filter(function(item) {
+    return item.title.toLowerCase().indexOf(q) !== -1 ||
+      item.text.toLowerCase().indexOf(q) !== -1 ||
+      item.sectionName.toLowerCase().indexOf(q) !== -1 ||
+      item.moduleLabel.toLowerCase().indexOf(q) !== -1;
+  });
+
+  if (found.length === 0) {
+    searchResultsDiv.classList.remove('active');
+    noResults.classList.add('active');
+    return;
+  }
+
+  noResults.classList.remove('active');
+  searchResultsDiv.classList.add('active');
+  var cnt = found.length;
+  var suf = cnt === 1 ? '' : cnt < 5 ? 'а' : 'ов';
+  resultCount.textContent = 'Найдено: ' + cnt + ' результат' + suf;
+
+  var q2 = this.value.trim();
+  resultsList.innerHTML = found.map(function(item) {
+    var itemClass = item.module === 'pony' ? 'pony-result' : item.module === 'postal' ? 'postal-result' : '';
+    var badgeClass = item.module === 'courier' ? 'badge-courier' : item.module === 'postal' ? 'badge-postal' : 'badge-pony';
+    var preview = item.text.length > 110 ? item.text.slice(0, 110) + '…' : item.text;
+    return '<div class="result-item ' + itemClass + '" onclick="goToItem(\'' + item.module + '\',\'' + item.section + '\')">' +
+      '<span class="result-module-badge ' + badgeClass + '">' + item.moduleLabel + '</span>' +
+      '<div class="result-section">' + item.sectionName + '</div>' +
+      '<div class="result-title">' + highlight(item.title, q2) + '</div>' +
+      '<div class="result-preview">' + highlight(preview, q2) + '</div>' +
+      '</div>';
+  }).join('');
+});
+
+clearBtn.addEventListener('click', clearSearch);
+
+function clearSearch() {
+  input.value = '';
+  clearBtn.classList.remove('visible');
+  searchResultsDiv.classList.remove('active');
+  noResults.classList.remove('active');
+  document.querySelectorAll('.module.active .main').forEach(function(m) { m.style.display = ''; });
+}
+
+function goToItem(mod, sectionId) {
+  clearSearch();
+  if (mod !== currentModule) switchModule(mod);
+
+  var prefix = mod + '-';
+  setTimeout(function() {
+    document.querySelectorAll('#module-' + mod + ' .section').forEach(function(s) { s.classList.remove('active'); });
+    document.querySelectorAll('#module-' + mod + ' .tab-btn').forEach(function(b) {
+      b.classList.remove('active');
+      b.style.background = ''; b.style.borderColor = ''; b.style.color = '';
+    });
+    var sec = document.getElementById(prefix + sectionId);
+    if (sec) sec.classList.add('active');
+
+    var tabs = document.querySelectorAll('#' + mod + 'Tabs .tab-btn');
+    tabs.forEach(function(btn) {
+      var oc = btn.getAttribute('onclick') || '';
+      if (oc.indexOf("'" + sectionId + "'") !== -1) {
+        btn.classList.add('active');
+        try { btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); } catch(e) {}
+      }
+    });
+    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch(e) { window.scrollTo(0, 0); }
+  }, 50);
+}
+</script>
+
+<!-- ======================================================= -->
+<!-- MODULE 3: POSTAL -->
+<!-- ======================================================= -->
+<div class="module" id="module-postal">
+<div class="main">
+  <div class="section-tabs" id="postalTabs">
+    <button class="tab-btn active postal-active" onclick="showSection('first_mile','postal',this)">📥 Первая миля</button>
+    <button class="tab-btn" onclick="showSection('marking','postal',this)">🏷️ Маркировка</button>
+    <button class="tab-btn" onclick="showSection('second_mile','postal',this)">📤 Вторая миля</button>
+    <button class="tab-btn" onclick="showSection('sorting','postal',this)">📦 Сортировка</button>
+  </div>
+
+  <!-- П1. ПЕРВАЯ МИЛЯ -->
+  <div class="section active" id="postal-first_mile">
+    <div class="section-header">
+      <div class="section-icon" style="background:#dcfce7">📥</div>
+      <div class="section-title">Приём на первой миле</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#16a34a">Что такое первая миля?</div>
+      <div class="info-row">
+        <div class="info-item">
+          <div class="lbl">Определение</div>
+          <div class="val"><b>Первая миля</b> — стартовая точка движения отправления в пункт доставки. На первой миле принимаются отправления от курьера или в ППВЗ.</div>
+        </div>
+        <div class="info-item">
+          <div class="lbl">Наши задачи</div>
+          <div class="val">При обработке почтовых отправлений мы можем <b>принимать, сортировать и собирать</b> их. На первой миле — рассматриваем процесс <b>приёма отправлений</b>.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#16a34a">Вход в программу Пегас</div>
+      <div class="steps">
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">1</div><div class="step-text">Нажмите на <b>ярлык «Pony Express Пегас»</b> на рабочем столе Windows для входа в программу.</div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">2</div><div class="step-text">По умолчанию программа запоминает <b>настройки последнего сканирования</b> пользователем — кладовщиком или оператором.</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#16a34a">Типы событий в Пегасе</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">71 — Прибыл на склад</div><div class="val">Отправление поступило на склад. В полях «Примечание» и «Номер курьера» указывается <b>табельный номер курьера</b>, сдающего отправления.</div></div>
+        <div class="info-item"><div class="lbl">72 — Проинвентаризирован</div><div class="val">Событие проставляется при проведении инвентаризации на складе.</div></div>
+        <div class="info-item"><div class="lbl">79 — Внесён в консолидацию</div><div class="val">Отправление добавлено в консолидационный мешок для отправки.</div></div>
+        <div class="info-item"><div class="lbl">81 — Убыл со склада</div><div class="val">Отправление покинуло склад.</div></div>
+        <div class="info-item"><div class="lbl">88 — Прибыл в пункт доставки</div><div class="val">Отправление прибыло в конечный пункт доставки.</div></div>
+        <div class="info-item"><div class="lbl">91 — Внесён в контейнер</div><div class="val">Отправление размещено в контейнере/консолидации для отправки.</div></div>
+        <div class="info-item"><div class="lbl">95 — Перемещён в пределах точки</div><div class="val">Перемещение отправления между разными участками в пределах склада.</div></div>
+        <div class="info-item"><div class="lbl">210 — Инвентаризация КП</div><div class="val">Инвентаризация контрольных пакетов.</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#16a34a">Создание блока событий (манифест)</div>
+      <div class="steps">
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">1</div><div class="step-text">Откройте модуль <b>«Ввод блока событий»</b>. Тип блока — <b>Манифест</b>.</div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">2</div><div class="step-text">Обязательно укажите <b>точку сканирования</b> — место, где создаётся манифест.</div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">3</div><div class="step-text">Выставьте <b>зарегистрированное событие</b> — например, <b>71 «Прибыл на склад»</b>.</div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">4</div><div class="step-text">В поле «Примечание» и «Номер курьера» укажите <b>табельный номер курьера</b>, сдающего отправления.</div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">5</div><div class="step-text">Сканируйте отправления. Для многоместных — <b>сверьтесь с количеством мест</b>, указанных в накладной.</div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">6</div><div class="step-text">Нажмите <b>«Сохранить» (F9)</b> для завершения блока.</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#16a34a">Виды накладных Pony Express</div>
+      <div class="info-row">
+        <div class="info-item">
+          <div class="lbl">Накладная со штрихкодом (внутригородская)</div>
+          <div class="val">Используется для внутригородских отправлений. Штрихкод нанесён прямо на накладную.</div>
+        </div>
+        <div class="info-item">
+          <div class="lbl">«Живая» накладная с DELP</div>
+          <div class="val"><b>DELP</b> — трёхзначное обозначение узла, откуда ушло отправление. Накладная содержит эту метку для маршрутизации.</div>
+        </div>
+      </div>
+      <div class="alert alert-success"><span class="alert-icon">ℹ️</span><span>Накладная Pony Express — <b>основной сопроводительный документ</b>, присутствует на каждом отправлении. При многоместной отправке накладная крепится на <b>первое место</b>. Грузовая этикетка — на все места.</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#16a34a">Документы для многоместных отправлений</div>
+      <div class="info-row">
+        <div class="info-item">
+          <div class="lbl">Приложение по объёмному весу</div>
+          <div class="val">Заполняются поля: <b>Длина, Ширина, Высота, Объёмный вес</b> по каждому месту. Подписывается курьером/экспедитором.</div>
+        </div>
+        <div class="info-item">
+          <div class="lbl">Акт приёма-передачи груза</div>
+          <div class="val">Требуется если <b>объявленная ценность более 500 000 рублей</b> (кроме интернет-магазинов). Указывается объявленная ценность — страховочная сумма отправления (совпадает с накладной).</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#16a34a">Идентификационные наклейки</div>
+      <div class="info-row">
+        <div class="info-item">
+          <div class="lbl">Пустая наклейка (белый круг)</div>
+          <div class="val">Для указания <b>кода исключения</b> и подробной информации о выявленной проблеме. Наклеивается на <b>первое место</b> рядом с накладной.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- П2. МАРКИРОВКА -->
+  <div class="section" id="postal-marking">
+    <div class="section-header">
+      <div class="section-icon" style="background:#dcfce7">🏷️</div>
+      <div class="section-title">Маркировка по штрихкоду</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#16a34a">Модуль маркировки в Пегасе</div>
+      <div class="steps">
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">1</div><div class="step-text">Откройте модуль <b>«Маркировка по штрихкоду 2»</b> в программе Пегас.</div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">2</div><div class="step-text">Введите <b>клиентский номер заказа, номер места или номер накладной</b> в поле ввода.</div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">3</div><div class="step-text">Система автоматически подтянет данные: <b>номер накладной, количество мест, вес, контрольный вес.</b></div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">4</div><div class="step-text">Выберите <b>формат печати</b> (обычная 102×156 мм) и <b>принтер</b>.</div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">5</div><div class="step-text">Нажмите кнопку <b>«Создать накладную/наклейку»</b> для печати.</div></div>
+      </div>
+      <div class="alert alert-info" style="background:#dcfce7;border-color:#86efac;color:#14532d"><span class="alert-icon">ℹ️</span><span>При сканировании сначала сканируется <b>накладная</b>, затем система создаёт блок событий с типом «Манифест» и событием «Прибыл на склад».</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#16a34a">Режимы печати</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">Для каждого места отдельно</div><div class="val">Наклейка печатается на каждое место отправления отдельно.</div></div>
+        <div class="info-item"><div class="lbl">Для всех мест по объекту</div><div class="val">Наклейки для всех мест отправления печатаются одновременно.</div></div>
+        <div class="info-item"><div class="lbl">Смешанный режим</div><div class="val">Возможность работы с отправлениями разных договоров в одном потоке.</div></div>
+        <div class="info-item"><div class="lbl">По одному договору</div><div class="val">Сканирование только отправлений конкретного договора/клиента.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- П3. ВТОРАЯ МИЛЯ -->
+  <div class="section" id="postal-second_mile">
+    <div class="section-header">
+      <div class="section-icon" style="background:#dcfce7">📤</div>
+      <div class="section-title">Приём на второй миле</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#16a34a">Что такое вторая миля?</div>
+      <div class="info-row">
+        <div class="info-item">
+          <div class="lbl">Определение</div>
+          <div class="val">На второй миле отправления поступают <b>из других узлов сети</b>. Здесь проводится приём, регистрация событий и работа с неопознанными отправлениями.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#16a34a">Алгоритм приёма на второй миле</div>
+      <div class="steps">
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">1</div><div class="step-text">Откройте модуль <b>«Регистрация событий 2»</b> в Пегасе.</div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">2</div><div class="step-text">Создайте новое событие — <b>«Прибыл на склад»</b> (событие 71) или другое нужное событие.</div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">3</div><div class="step-text">Сканируйте штрихкоды отправлений или <b>вводите вручную</b> с клавиатуры.</div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">4</div><div class="step-text">Через вкладку <b>«Отчёты»</b> открываем модуль <b>«Сравнение блоков»</b> для контроля расхождений.</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#16a34a">Неопознанные отправления</div>
+      <div class="alert alert-warning"><span class="alert-icon">⚠️</span><span>Если отсутствует маркировка или она не читаема — действуем по алгоритму.</span></div>
+      <div class="steps" style="margin-top:12px">
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">1</div><div class="step-text">Наклеить на первое место отправления рядом с накладной <b>белую наклейку</b> и указать <b>168 код исключения «Неопознанное отправление».</b></div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">2</div><div class="step-text">Отложить в <b>зону обработки проблемных отправлений</b> для последующей передачи на КП.</div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">3</div><div class="step-text">Передать все проблемные отправления на <b>участок КП</b>.</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#16a34a">Работа с отправлениями «с КИ»</div>
+      <div class="steps">
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">1</div><div class="step-text">Укажите <b>2 код исключения</b> на накладной: «Указан некорректный/неправильный адрес получателя».</div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">2</div><div class="step-text">Передать отправление в <b>зону обработки проблемных отправлений.</b> Зарегистрировать убытие — событие <b>81 «Убыл со склада».</b></div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">3</div><div class="step-text">В примечании к блоку указать <b>код исключения.</b></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- П4. СОРТИРОВКА И СБОРКА -->
+  <div class="section" id="postal-sorting">
+    <div class="section-header">
+      <div class="section-icon" style="background:#dcfce7">📦</div>
+      <div class="section-title">Ручная сортировка и сборка</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#16a34a">Сортировка входящих отправлений</div>
+      <div class="steps">
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">1</div><div class="step-text">Отправления сортируются <b>по маршрутам доставки</b> (по точкам назначения).</div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">2</div><div class="step-text">Отправления с <b>некорректным/неправильным адресом</b> → в зону проблемных. Зарегистрировать убытие — событие <b>81</b>, в примечании указать код исключения.</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#16a34a">Сбор консолидации (мешков)</div>
+      <div class="info-row">
+        <div class="info-item">
+          <div class="lbl">Принцип формирования</div>
+          <div class="val">Сбор консолидации происходит по мере набора отправлений для определённого направления на основании <b>матрицы отправок</b>, которая приходит на электронную почту.</div>
+        </div>
+      </div>
+      <div class="steps" style="margin-top:12px">
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">1</div><div class="step-text">Открыть модуль <b>«Ввод блока событий»</b>, тип блока — <b>Манифест</b>.</div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">2</div><div class="step-text">Событие <b>79 «Внесён в консолидацию».</b> Выбрать точку назначения.</div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">3</div><div class="step-text">Сканировать накладные отправлений, которые войдут в данный мешок.</div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">4</div><div class="step-text">Сохранить блок. Далее создать событие <b>91 «Внесён в контейнер»</b> — выбрать точку назначения.</div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">5</div><div class="step-text">Для готовой консолидации создать событие <b>81 «Убыл со склада»</b> — сканировать <b>наклейку консолидации</b>, не накладные.</div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">6</div><div class="step-text">Перенести готовые консолидации <b>в зону погрузки.</b></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#16a34a">Виды консолидации</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">REG–MOW (MOW, VKO, DME, OSF) / DELP почта</div><div class="val">В манифест включаются только конверты, пакеты, следующие транзитом через Булатниково в филиалы Москвы (УОК-Запад, УОК-Восток, УОК-Юг). Общий вес мешка — не более <b>20 кг.</b></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:#16a34a">Наклейка на мешок консолидации</div>
+      <div class="steps">
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">1</div><div class="step-text">Распечатать наклейку консолидации через модуль маркировки.</div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">2</div><div class="step-text">Закрепить наклейку <b>рядом с мешком консолидации</b> (на коробе или мешке — на специально выделенном месте).</div></div>
+        <div class="step"><div class="step-num" style="background:#dcfce7;color:#16a34a">3</div><div class="step-text">Для события «Убыл со склада» сканировать <b>именно наклейку консолидации</b>, а не накладные вложений.</div></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main postal -->
+</div><!-- /module-postal -->
+
+
+
+<script>
+if ('serviceWorker' in navigator && location.hostname !== 'www.claudeusercontent.com') {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').catch(function(err) {
+      console.log('SW error', err);
+    });
+  });
+}
+</script>
+</body>
+</html>
