@@ -57,6 +57,10 @@
 
   body.pony { background: #fff5f5; }
   body.postal { background: #f0fdf4; }
+  body.ps { background: #f0f4ff; }
+  body.ps .module-bar { background: linear-gradient(135deg, #1a237e 0%, #3949ab 60%, #7986cb 100%); }
+  body.ps .module-logo .check-logo { display: none; }
+  body.ps .module-logo .ps-logo { display: inline; }
   body.undelivered { background: #fff8f0; }
   body.undelivered .module-bar { background: linear-gradient(135deg, #7b1fa2 0%, #ab47bc 60%, #ce93d8 100%); }
   body.undelivered .module-logo .check-logo { display: none; }
@@ -109,6 +113,7 @@
   .postal-logo { display: none; }
 .cargo-logo { display: none; }
 .undelivered-logo { display: none; }
+.ps-logo { display: none; }
 
   .module-subtitle {
     font-size: 11px;
@@ -225,6 +230,7 @@
   .result-item.postal-result { border-left-color: #16a34a; }
   .result-item.cargo-result { border-left-color: #2e7d32; }
   .result-item.undelivered-result { border-left-color: #7b1fa2; }
+  .result-item.ps-result { border-left-color: #1a237e; }
 
   .result-module-badge {
     display: inline-block;
@@ -239,6 +245,7 @@
   .badge-postal { background: #dcfce7; color: #14532d; }
   .badge-cargo { background: #e8f5e9; color: #1b5e20; }
   .badge-undelivered { background: #f3e5f5; color: #6a1b9a; }
+  .badge-ps { background: #e8eaf6; color: #1a237e; }
 
   .result-section { font-size: 10px; color: var(--gray-400); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px; }
   .result-title { font-size: 13px; font-weight: 600; color: var(--gray-800); margin-bottom: 2px; }
@@ -288,6 +295,11 @@
   }
 
   /* postal module tab active color */
+  body.ps #psTabs .tab-btn.active {
+    background: #1a237e;
+    border-color: #1a237e;
+    color: #fff;
+  }
   body.undelivered #undeliveredTabs .tab-btn.active {
     background: #7b1fa2;
     border-color: #7b1fa2;
@@ -407,6 +419,7 @@
       <span class="postal-logo">✉️ Почтовые отправления</span>
           <span class="cargo-logo">🚛 Грузовые отправления</span>
           <span class="undelivered-logo">↩️ Приём недоставленных</span>
+          <span class="ps-logo">⚙️ Производственная система</span>
     </div>
     <div class="module-subtitle" id="moduleSubtitle">Инструкция курьера</div>
   </div>
@@ -416,6 +429,7 @@
     <button class="mod-btn" id="btnPostal" onclick="switchModule('postal')">✉️ Почтовые отправления</button>
     <button class="mod-btn" id="btnCargo" onclick="switchModule('cargo')">🚛 Грузовые отправления</button>
     <button class="mod-btn" id="btnUndelivered" onclick="switchModule('undelivered')">↩️ Приём недоставленных</button>
+    <button class="mod-btn" id="btnPs" onclick="switchModule('ps')">⚙️ Производственная система</button>
   </div>
   <div class="search-wrap">
     <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5">
@@ -902,7 +916,7 @@ function switchModule(mod) {
   currentModule = mod;
 
   // modules
-  var modules = ['courier', 'pony', 'postal', 'cargo', 'undelivered'];
+  var modules = ['courier', 'pony', 'postal', 'cargo', 'undelivered', 'ps'];
   modules.forEach(function(m) {
     var el = document.getElementById('module-' + m);
     if (el) { el.classList.remove('active'); if (m === mod) el.classList.add('active'); }
@@ -911,14 +925,15 @@ function switchModule(mod) {
   });
 
   // body theme
-  document.body.classList.remove('pony', 'postal', 'cargo', 'undelivered');
+  document.body.classList.remove('pony', 'postal', 'cargo', 'undelivered', 'ps');
   if (mod === 'pony') document.body.classList.add('pony');
   if (mod === 'postal') document.body.classList.add('postal');
   if (mod === 'cargo') document.body.classList.add('cargo');
   if (mod === 'undelivered') document.body.classList.add('undelivered');
+  if (mod === 'ps') document.body.classList.add('ps');
 
   // subtitle
-  var subtitles = { courier: 'Инструкция курьера', pony: 'Продукты и услуги', postal: 'Почтовые отправления', cargo: 'Грузовые отправления', undelivered: 'Приём недоставленных отправлений' };
+  var subtitles = { courier: 'Инструкция курьера', pony: 'Продукты и услуги', postal: 'Почтовые отправления', cargo: 'Грузовые отправления', undelivered: 'Приём недоставленных отправлений', ps: 'Производственная система' };
   document.getElementById('moduleSubtitle').textContent = subtitles[mod] || '';
 
   // re-apply pony/postal tab accent colors for currently active tab
@@ -1054,6 +1069,24 @@ const searchData = [
   { module:'undelivered', moduleLabel:'Приём недоставленных', section:'und_sorting', sectionName:'Сортировка', title:'Сканирование накладной многоместное', text:'Отсканировать штрихкод накладной. Если отправление многоместное — последовательно отсканировать штрихкод накладной, затем штрихкод каждой грузовой этикетки каждого места отправления.' },
   { module:'undelivered', moduleLabel:'Приём недоставленных', section:'und_sorting', sectionName:'Сортировка', title:'Проблемные отправления событие 95 передача на КП', text:'Отправления с повреждёнными упаковками КИ 04 обнаружено нарушение упаковки или КИ 38 отправление повреждено при ненарушенной упаковке. Создать событие 95 Перемещён в пределах точки. Передать тележку на этап обработки проблемных отправлений.' },
 
+  // PS - ПРОИЗВОДСТВЕННАЯ СИСТЕМА
+  { module:'ps', moduleLabel:'Производственная система', section:'ps_what', sectionName:'Что такое ПС', title:'Определение производственной системы', text:'Производственная система — это совокупность элементов в Компании, которые связаны друг с другом и направлены на оптимизацию процессов, поиск инноваций, создание новых продуктов и услуг для достижения миссии, стратегических целей и обеспечения развития.' },
+  { module:'ps', moduleLabel:'Производственная система', section:'ps_what', sectionName:'Что такое ПС', title:'Особенности производственной системы', text:'Каждая ПС уникальна — каждая фирма имеет свою производственную систему. Не существует бизнеса без производственной системы. ПС развивается только если развиваются сотрудники — система побуждает демонстрировать лучшие качества.' },
+  { module:'ps', moduleLabel:'Производственная система', section:'ps_what', sectionName:'Что такое ПС', title:'Преимущества развития ПС', text:'Качество, профессиональное развитие, доход, самосовершенствование, производственный цикл, сокращение переработок.' },
+  { module:'ps', moduleLabel:'Производственная система', section:'ps_concept', sectionName:'Концепция ПС', title:'8 видов потерь в производстве', text:'Перепроизводство, брак и переделка, лишние запасы, ненужная транспортировка, ненужные перемещения, лишний этап обработки, ожидание, потеря творческого потенциала сотрудников.' },
+  { module:'ps', moduleLabel:'Производственная система', section:'ps_concept', sectionName:'Концепция ПС', title:'Ненужная транспортировка потери', text:'Возникает при перемещении материалов и товаров между отделами, цехами, складами без добавления ценности. Причины: нерациональное использование площадей, лишние промежуточные зоны хранения, неудобное размещение оборудования.' },
+  { module:'ps', moduleLabel:'Производственная система', section:'ps_concept', sectionName:'Концепция ПС', title:'SMED быстрая переналадка', text:'SMED — метод бережливого производства для сокращения издержек и потерь при переналадке и переоснастке оборудования.' },
+  { module:'ps', moduleLabel:'Производственная система', section:'ps_pe', sectionName:'ПС в Pony Express', title:'Цели развития ПС в компании Pony Express', text:'1 Повышение качества сервиса. 2 Минимизация запасов — сокращение складских площадей за счёт оптимального размещения отправлений и грузов. 3 Снижение затрат. 4 Сокращение времени процессов. 5 Повышение безопасности труда.' },
+  { module:'ps', moduleLabel:'Производственная система', section:'ps_pe', sectionName:'ПС в Pony Express', title:'Система 5S в Pony Express', text:'Система 5S — эффективный метод организации рабочих мест, позволяющий снизить количество потерь. 5 шагов: Сортировка, Соблюдение порядка, Содержание в чистоте, Стандартизация, Совершенствование.' },
+  { module:'ps', moduleLabel:'Производственная система', section:'ps_5s', sectionName:'Система 5S', title:'Шаг 1 Сортировка Seiri Sort', text:'Разделить все предметы на нужные и ненужные. Ненужные удалить с рабочего места. Ошибки: смешивать нужные и ненужные, откладывать лишнее в сторону.' },
+  { module:'ps', moduleLabel:'Производственная система', section:'ps_5s', sectionName:'Система 5S', title:'Шаг 2 Соблюдение порядка Seiton Set in Order', text:'Разместить нужные предметы так, чтобы их было легко использовать. Каждый предмет на своё место. Ошибки: размещать редко используемые предметы так же как часто используемые.' },
+  { module:'ps', moduleLabel:'Производственная система', section:'ps_5s', sectionName:'Система 5S', title:'Шаг 3 Содержание в чистоте Seiso Shine', text:'Выявить и устранить источники загрязнений и труднодоступные места для уборки. Разбить на зоны и закрепить персональную ответственность. Ввести чек-листы.' },
+  { module:'ps', moduleLabel:'Производственная система', section:'ps_5s', sectionName:'Система 5S', title:'Шаг 4 Стандартизация Seiketsu Standardize', text:'Разработать стандарты выполнения первых трёх шагов. Зафиксировать лучшие практики. Обеспечить регулярные проверки соблюдения стандартов.' },
+  { module:'ps', moduleLabel:'Производственная система', section:'ps_5s', sectionName:'Система 5S', title:'Шаг 5 Совершенствование Shitsuke Sustain', text:'Формирование привычки точного выполнения установленных правил, процедур и технологических операций. Самодисциплина.' },
+  { module:'ps', moduleLabel:'Производственная система', section:'ps_ppu', sectionName:'Предложения по улучшению', title:'ППУ предложения по улучшению что принимается', text:'Принимаются ППУ: направленные на улучшение рабочих процессов, снижение затрат, повышение качества, безопасности, условий труда.' },
+  { module:'ps', moduleLabel:'Производственная система', section:'ps_ppu', sectionName:'Предложения по улучшению', title:'ППУ что не принимается', text:'Не принимаются: поданные повторно или внедрённые другими ранее, описывающие действующий регламентированный процесс, не предлагающие конкретного механизма реализации, направленные на улучшение бытовых условий, анонимные.' },
+  { module:'ps', moduleLabel:'Производственная система', section:'ps_ppu', sectionName:'Предложения по улучшению', title:'Подача и регистрация ППУ принятие руководителем', text:'Руководитель должен принимать любые предложения от сотрудников, даже если считает это не улучшением. ППУ считается разработанным после принятия Комиссией решения внедрить ППУ. За разработку и внедрение ППУ компания выплачивает премию.' },
+
 ];
 
 function highlight(text, query) {
@@ -1109,8 +1142,8 @@ input.addEventListener('input', function() {
 
   var q2 = this.value.trim();
   resultsList.innerHTML = found.map(function(item) {
-    var itemClass = item.module === 'pony' ? 'pony-result' : item.module === 'postal' ? 'postal-result' : item.module === 'cargo' ? 'cargo-result' : item.module === 'undelivered' ? 'undelivered-result' : '';
-    var badgeClass = item.module === 'courier' ? 'badge-courier' : item.module === 'postal' ? 'badge-postal' : item.module === 'cargo' ? 'badge-cargo' : item.module === 'undelivered' ? 'badge-undelivered' : 'badge-pony';
+    var itemClass = item.module === 'pony' ? 'pony-result' : item.module === 'postal' ? 'postal-result' : item.module === 'cargo' ? 'cargo-result' : item.module === 'undelivered' ? 'undelivered-result' : item.module === 'ps' ? 'ps-result' : '';
+    var badgeClass = item.module === 'courier' ? 'badge-courier' : item.module === 'postal' ? 'badge-postal' : item.module === 'cargo' ? 'badge-cargo' : item.module === 'undelivered' ? 'badge-undelivered' : item.module === 'ps' ? 'badge-ps' : 'badge-pony';
     var preview = item.text.length > 110 ? item.text.slice(0, 110) + '…' : item.text;
     return '<div class="result-item ' + itemClass + '" onclick="goToItem(\'' + item.module + '\',\'' + item.section + '\')">' +
       '<span class="result-module-badge ' + badgeClass + '">' + item.moduleLabel + '</span>' +
@@ -1795,6 +1828,207 @@ function goToItem(mod, sectionId) {
 </div><!-- /main undelivered -->
 </div><!-- /module-undelivered -->
 
+<!-- ======================================================= -->
+<!-- MODULE 6: ПРОИЗВОДСТВЕННАЯ СИСТЕМА -->
+<!-- ======================================================= -->
+<div class="module" id="module-ps">
+<div class="main">
+<div class="section-tabs" id="psTabs">
+<button class="tab-btn active" onclick="showSection('ps_what','ps',this)">📖 Что такое ПС</button>
+<button class="tab-btn" onclick="showSection('ps_concept','ps',this)">🔍 Концепция ПС</button>
+<button class="tab-btn" onclick="showSection('ps_pe','ps',this)">🏢 ПС в Pony Express</button>
+<button class="tab-btn" onclick="showSection('ps_5s','ps',this)">5️⃣ Система 5S</button>
+<button class="tab-btn" onclick="showSection('ps_ppu','ps',this)">💡 Предложения по улучшению</button>
+</div>
+
+<!-- P1. ЧТО ТАКОЕ ПС -->
+<div class="section active" id="ps-ps_what">
+<div class="section-header">
+<div class="section-icon" style="background:#e8eaf6">📖</div>
+<div class="section-title">Что такое Производственная система</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#1a237e">Определение</div>
+<div class="alert" style="background:#e8eaf6;border-left:4px solid #1a237e"><span class="alert-icon">ℹ️</span><span><b>Производственная система (ПС)</b> — это совокупность элементов в Компании, которые связаны друг с другом и направлены на оптимизацию процессов, поиск инноваций, создание новых продуктов и услуг для достижения миссии, стратегических целей и обеспечения развития.</span></div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#1a237e">Особенности производственной системы</div>
+<div class="info-row">
+<div class="info-item"><div class="lbl">Каждая ПС уникальна</div><div class="val">Каждая фирма имеет свою производственную систему — совокупность функций, включающую действия, в результате которых производятся товары и услуги.</div></div>
+<div class="info-item"><div class="lbl">Не существует бизнеса без ПС</div><div class="val">Если в самом начале составить верный процесс развития компании через производственную систему, впоследствии не придется переделывать.</div></div>
+<div class="info-item"><div class="lbl">ПС развивается вместе с людьми</div><div class="val">Производственная система развивается только если развиваются сотрудники. Система побуждает демонстрировать лучшие качества, обеспечивая оптимальное взаимодействие.</div></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#1a237e">Преимущества развития ПС</div>
+<div class="info-row">
+<div class="info-item"><div class="lbl">Качество</div><div class="val">Повышение качества производимых товаров и услуг.</div></div>
+<div class="info-item"><div class="lbl">Профессиональное развитие</div><div class="val">Рост компетенций и навыков сотрудников.</div></div>
+<div class="info-item"><div class="lbl">Доход</div><div class="val">Увеличение доходности за счёт оптимизации процессов.</div></div>
+<div class="info-item"><div class="lbl">Самосовершенствование</div><div class="val">Постоянное улучшение процессов и методов работы.</div></div>
+<div class="info-item"><div class="lbl">Производственный цикл</div><div class="val">Сокращение производственного цикла.</div></div>
+<div class="info-item"><div class="lbl">Переработка</div><div class="val">Сокращение переработок и потерь.</div></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#1a237e">История развития производственных систем</div>
+<div class="info-row">
+<div class="info-item"><div class="lbl">18 век — Концепция сменных деталей</div><div class="val">1780 г. — использование сменных частей в вооружении французской армии. 1799 г. — Марк Брюнель изобретает оборудование для автоматического производства деталей.</div></div>
+<div class="info-item"><div class="lbl">1970-е — Toyota Production System</div><div class="val">1973 г. — первое руководство по TPS. 1977 г. — первая статья о логике TPS. 1982 г. — полное описание системы менеджмента Toyota издано в США.</div></div>
+<div class="info-item"><div class="lbl">21 век</div><div class="val">Принципы бережливого производства (Lean) применяются во всех отраслях: производство, логистика, IT, услуги.</div></div>
+</div>
+</div>
+</div>
+
+<!-- P2. КОНЦЕПЦИЯ -->
+<div class="section" id="ps-ps_concept">
+<div class="section-header">
+<div class="section-icon" style="background:#e8eaf6">🔍</div>
+<div class="section-title">Концепция производственной системы</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#1a237e">Снижение потерь — основа концепции</div>
+<div class="alert" style="background:#e8eaf6;border-left:4px solid #1a237e"><span class="alert-icon">ℹ️</span><span>Все подходы в производственной системе ведут к <b>снижению потерь.</b> Виды потерь в производстве различаются по причинам, последствиям, способам выявления, подсчёту, устранению. Выделяют <b>8 видов потерь.</b></span></div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#1a237e">8 видов потерь</div>
+<div class="info-row">
+<div class="info-item"><div class="lbl">1. Перепроизводство</div><div class="val">Производство больше, чем требуется потребителю в данный момент. Самый опасный вид потерь — маскирует другие проблемы.</div></div>
+<div class="info-item"><div class="lbl">2. Брак и переделка</div><div class="val">Производство дефектных изделий или услуг, требующих исправления или замены.</div></div>
+<div class="info-item"><div class="lbl">3. Лишние запасы</div><div class="val">Хранение материалов, деталей или готовой продукции сверх необходимого минимума.</div></div>
+<div class="info-item"><div class="lbl">4. Ненужная транспортировка</div><div class="val">Перемещение материалов и товаров между производственными отделами, цехами, складами, не добавляющее ценности. Причины: нерациональное использование площадей, лишние промежуточные зоны хранения, неудобное размещение оборудования.</div></div>
+<div class="info-item"><div class="lbl">5. Ненужные перемещения</div><div class="val">Лишние движения персонала, не создающие ценности для продукта или услуги.</div></div>
+<div class="info-item"><div class="lbl">6. Лишний этап обработки</div><div class="val">Выполнение операций, не добавляющих ценности с точки зрения потребителя.</div></div>
+<div class="info-item"><div class="lbl">7. Ожидание</div><div class="val">Простой персонала или оборудования в ожидании следующего этапа производственного процесса.</div></div>
+<div class="info-item"><div class="lbl">8. Потеря творческого потенциала</div><div class="val">Недоиспользование знаний, навыков и идей сотрудников для улучшения процессов.</div></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#1a237e">Ключевые инструменты концепции</div>
+<div class="info-row">
+<div class="info-item"><div class="lbl">SMED — быстрая переналадка</div><div class="val">Метод бережливого производства для сокращения издержек и потерь при переналадке и переоснастке оборудования.</div></div>
+<div class="info-item"><div class="lbl">Канбан — вытягивающее производство</div><div class="val">Система управления производством, при которой каждый процесс вытягивает нужные ресурсы из предыдущего этапа по мере необходимости.</div></div>
+<div class="info-item"><div class="lbl">Кайдзен — непрерывное улучшение</div><div class="val">Философия постоянных небольших улучшений, в которых участвуют все сотрудники компании.</div></div>
+</div>
+</div>
+</div>
+
+<!-- P3. ПС В PONY EXPRESS -->
+<div class="section" id="ps-ps_pe">
+<div class="section-header">
+<div class="section-icon" style="background:#e8eaf6">🏢</div>
+<div class="section-title">Производственная система в Pony Express</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#1a237e">5 целей развития ПС в компании</div>
+<div class="steps">
+<div class="step"><div class="step-num" style="background:#e8eaf6;color:#1a237e">1</div><div class="step-text"><b>Повышение качества сервиса</b> — улучшение клиентского опыта и снижение количества ошибок.</div></div>
+<div class="step"><div class="step-num" style="background:#e8eaf6;color:#1a237e">2</div><div class="step-text"><b>Минимизация запасов</b> — сокращение складских площадей за счёт оптимального размещения продукции, отправлений и грузов на складе.</div></div>
+<div class="step"><div class="step-num" style="background:#e8eaf6;color:#1a237e">3</div><div class="step-text"><b>Снижение затрат</b> — оптимизация расходов на всех этапах логистической цепочки.</div></div>
+<div class="step"><div class="step-num" style="background:#e8eaf6;color:#1a237e">4</div><div class="step-text"><b>Сокращение времени процессов</b> — ускорение обработки, сортировки и доставки отправлений.</div></div>
+<div class="step"><div class="step-num" style="background:#e8eaf6;color:#1a237e">5</div><div class="step-text"><b>Повышение безопасности труда</b> — снижение рисков и создание безопасной рабочей среды.</div></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#1a237e">Система 5S в Pony Express</div>
+<div class="alert" style="background:#e8eaf6;border-left:4px solid #1a237e"><span class="alert-icon">ℹ️</span><span>Система «5S» — эффективный метод организации рабочих мест, который позволяет снизить количество потерь. В Pony Express система 5S является одним из ключевых инструментов Производственной системы.</span></div>
+</div>
+</div>
+
+<!-- P4. СИСТЕМА 5S -->
+<div class="section" id="ps-ps_5s">
+<div class="section-header">
+<div class="section-icon" style="background:#e8eaf6">5️⃣</div>
+<div class="section-title">Система «5S»</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#1a237e">Что такое система 5S?</div>
+<div class="alert" style="background:#e8eaf6;border-left:4px solid #1a237e"><span class="alert-icon">ℹ️</span><span>Система «5S» — метод организации рабочего пространства, разработанный в Японии. Название происходит от пяти японских слов, каждое из которых начинается на «S». Цель — снизить потери и повысить эффективность.</span></div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#1a237e">Шаг 1: Сортировка (Seiri / Sort)</div>
+<div class="info-row">
+<div class="info-item"><div class="lbl">Суть</div><div class="val">Разделить все предметы на нужные и ненужные. Ненужные убрать с рабочего места.</div></div>
+<div class="info-item"><div class="lbl">Ошибки</div><div class="val">Смешивать нужные и ненужные предметы. Откладывать лишнее «в сторону» вместо удаления.</div></div>
+<div class="info-item"><div class="lbl">Решение</div><div class="val">Использовать «красные ярлыки» для пометки ненужных предметов и вынести их в зону карантина.</div></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#1a237e">Шаг 2: Соблюдение порядка (Seiton / Set in Order)</div>
+<div class="info-row">
+<div class="info-item"><div class="lbl">Суть</div><div class="val">Разместить нужные предметы так, чтобы их было легко найти, использовать и вернуть на место. Каждый предмет — на своё место.</div></div>
+<div class="info-item"><div class="lbl">Ошибки</div><div class="val">Размещать редко используемые предметы так же, как часто используемые. Не обозначать места хранения.</div></div>
+<div class="info-item"><div class="lbl">Решение</div><div class="val">Маркировать места хранения. Учитывать частоту использования при размещении.</div></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#1a237e">Шаг 3: Содержание в чистоте (Seiso / Shine)</div>
+<div class="info-row">
+<div class="info-item"><div class="lbl">Суть</div><div class="val">Выявить и устранить источники загрязнений и труднодоступные места для уборки. Разбить на зоны, закрепить ответственность.</div></div>
+<div class="info-item"><div class="lbl">Ошибки</div><div class="val">Наводить порядок до внедрения первого шага «Сортировка». Бороться только с последствиями, а не первопричинами загрязнений.</div></div>
+<div class="info-item"><div class="lbl">Решение</div><div class="val">Закрепить персональную ответственность за поддержание чистоты. Ввести чек-листы и определить время проверки/уборки.</div></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#1a237e">Шаг 4: Стандартизация (Seiketsu / Standardize)</div>
+<div class="info-row">
+<div class="info-item"><div class="lbl">Суть</div><div class="val">Разработать стандарты выполнения первых трёх шагов. Зафиксировать лучшие практики и обеспечить регулярные проверки.</div></div>
+<div class="info-item"><div class="lbl">Ошибки</div><div class="val">Разработать стандарты, но не контролировать их исполнение. Стандарты без визуализации.</div></div>
+<div class="info-item"><div class="lbl">Решение</div><div class="val">Визуальные стандарты, фото «как должно быть», регулярные аудиты.</div></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#1a237e">Шаг 5: Совершенствование (Shitsuke / Sustain)</div>
+<div class="info-row">
+<div class="info-item"><div class="lbl">Суть</div><div class="val">Формирование привычки точного выполнения установленных правил, процедур и технологических операций. Самодисциплина.</div></div>
+<div class="info-item"><div class="lbl">Ошибки</div><div class="val">Считать, что 5S — разовое мероприятие. Отсутствие мотивации у сотрудников.</div></div>
+<div class="info-item"><div class="lbl">Решение</div><div class="val">Регулярные обучения, вовлечение сотрудников, признание лучших практик.</div></div>
+</div>
+</div>
+</div>
+
+<!-- P5. ППУ -->
+<div class="section" id="ps-ps_ppu">
+<div class="section-header">
+<div class="section-icon" style="background:#e8eaf6">💡</div>
+<div class="section-title">Предложения по улучшению (ППУ)</div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#1a237e">Что такое ППУ?</div>
+<div class="alert" style="background:#e8eaf6;border-left:4px solid #1a237e"><span class="alert-icon">ℹ️</span><span><b>ППУ (Предложение по улучшению)</b> — это инициатива сотрудника, направленная на улучшение рабочих процессов, снижение затрат, повышение качества или безопасности. За разработку и внедрение ППУ компания выплачивает <b>премию.</b></span></div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#1a237e">Какие ППУ принимаются</div>
+<div class="alert" style="background:#e8f5e9;border-left:4px solid #2e7d32"><span class="alert-icon">✅</span><span>Принимаются ППУ, направленные на улучшение рабочих процессов, снижение затрат, повышение качества, безопасности и условий труда с конкретным механизмом реализации.</span></div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#1a237e">Какие ППУ НЕ принимаются</div>
+<div class="info-row">
+<div class="info-item"><div class="lbl">❌ Повторные</div><div class="val">Поданные повторно или уже внедрённые другими сотрудниками ранее.</div></div>
+<div class="info-item"><div class="lbl">❌ Регламентные</div><div class="val">Описывающие действующий регламентированный процесс без предложений по его изменению.</div></div>
+<div class="info-item"><div class="lbl">❌ Без механизма</div><div class="val">Не предлагающие конкретного механизма реализации.</div></div>
+<div class="info-item"><div class="lbl">❌ Бытовые</div><div class="val">Направленные на улучшение бытовых условий (кофемашина, парковка и т.п.).</div></div>
+<div class="info-item"><div class="lbl">❌ Должностные</div><div class="val">Созданные в порядке выполнения должностных обязанностей.</div></div>
+<div class="info-item"><div class="lbl">❌ Анонимные</div><div class="val">Анонимные предложения по улучшению.</div></div>
+</div>
+<div class="alert alert-warning"><span class="alert-icon">⚠️</span><span>Не путайте: ППУ — это предложение по <b>изменению</b> процесса, а не описание того, как он работает сейчас.</span></div>
+</div>
+<div class="card">
+<div class="card-title" style="color:#1a237e">Подача и регистрация ППУ</div>
+<div class="steps">
+<div class="step"><div class="step-num" style="background:#e8eaf6;color:#1a237e">1</div><div class="step-text">Сотрудник формирует предложение по улучшению и подаёт его руководителю.</div></div>
+<div class="step"><div class="step-num" style="background:#e8eaf6;color:#1a237e">2</div><div class="step-text"><b>Руководитель обязан принять</b> любое ППУ от сотрудника — даже если считает, что предлагаемое изменение не является улучшением.</div></div>
+<div class="step"><div class="step-num" style="background:#e8eaf6;color:#1a237e">3</div><div class="step-text">ППУ регистрируется и передаётся на рассмотрение Комиссии.</div></div>
+<div class="step"><div class="step-num" style="background:#e8eaf6;color:#1a237e">4</div><div class="step-text">Комиссия принимает решение о внедрении. <b>ППУ считается разработанным</b> после принятия Комиссией решения внедрить его.</div></div>
+<div class="step"><div class="step-num" style="background:#e8eaf6;color:#1a237e">5</div><div class="step-text">При успешном внедрении участникам ППУ выплачивается <b>премия.</b></div></div>
+</div>
+</div>
+</div>
+
+</div><!-- /main ps -->
+</div><!-- /module-ps -->
+
+
 
 
 
@@ -1810,4 +2044,5 @@ if ('serviceWorker' in navigator && location.hostname !== 'www.claudeusercontent
 </script>
 </body>
 </html>
+
 
