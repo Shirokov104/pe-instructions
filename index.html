@@ -69,6 +69,10 @@
   body.cargo .module-bar { background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 60%, #66bb6a 100%); }
   body.cargo .module-logo .check-logo { display: none; }
   body.cargo .module-logo .cargo-logo { display: inline; }
+  body.tpl { background: #f0f7ff; }
+  body.tpl .module-bar { background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 60%, #38bdf8 100%); }
+  body.tpl .module-logo .check-logo { display: none; }
+  body.tpl .module-logo .tpl-logo { display: inline; }
 
   /* ===== MODULE SWITCHER ===== */
   .module-bar {
@@ -114,6 +118,7 @@
 .cargo-logo { display: none; }
 .undelivered-logo { display: none; }
 .ps-logo { display: none; }
+.tpl-logo { display: none; }
 
   .module-subtitle {
     font-size: 11px;
@@ -231,6 +236,7 @@
   .result-item.cargo-result { border-left-color: #2e7d32; }
   .result-item.undelivered-result { border-left-color: #7b1fa2; }
   .result-item.ps-result { border-left-color: #1a237e; }
+  .result-item.tpl-result { border-left-color: #0369a1; }
 
   .result-module-badge {
     display: inline-block;
@@ -246,6 +252,7 @@
   .badge-cargo { background: #e8f5e9; color: #1b5e20; }
   .badge-undelivered { background: #f3e5f5; color: #6a1b9a; }
   .badge-ps { background: #e8eaf6; color: #1a237e; }
+  .badge-tpl { background: #e0f2fe; color: #0c4a6e; }
 
   .result-section { font-size: 10px; color: var(--gray-400); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px; }
   .result-title { font-size: 13px; font-weight: 600; color: var(--gray-800); margin-bottom: 2px; }
@@ -308,6 +315,12 @@
   body.cargo #cargoTabs .tab-btn.active {
     background: #2e7d32;
     border-color: #2e7d32;
+    color: #fff;
+  }
+
+  body.tpl #tplTabs .tab-btn.active {
+    background: #0369a1;
+    border-color: #0369a1;
     color: #fff;
   }
 
@@ -420,6 +433,7 @@
           <span class="cargo-logo">🚛 Грузовые отправления</span>
           <span class="undelivered-logo">↩️ Приём недоставленных</span>
           <span class="ps-logo">⚙️ Производственная система</span>
+          <span class="tpl-logo">🏭 3PL: Приём отправлений</span>
     </div>
     <div class="module-subtitle" id="moduleSubtitle">Инструкция курьера</div>
   </div>
@@ -430,6 +444,7 @@
     <button class="mod-btn" id="btnCargo" onclick="switchModule('cargo')">🚛 Грузовые отправления</button>
     <button class="mod-btn" id="btnUndelivered" onclick="switchModule('undelivered')">↩️ Приём недоставленных</button>
     <button class="mod-btn" id="btnPs" onclick="switchModule('ps')">⚙️ Производственная система</button>
+    <button class="mod-btn" id="btnTpl" onclick="switchModule('tpl')">🏭 3PL: Приём отправлений</button>
   </div>
   <div class="search-wrap">
     <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5">
@@ -916,7 +931,7 @@ function switchModule(mod) {
   currentModule = mod;
 
   // modules
-  var modules = ['courier', 'pony', 'postal', 'cargo', 'undelivered', 'ps'];
+  var modules = ['courier', 'pony', 'postal', 'cargo', 'undelivered', 'ps', 'tpl'];
   modules.forEach(function(m) {
     var el = document.getElementById('module-' + m);
     if (el) { el.classList.remove('active'); if (m === mod) el.classList.add('active'); }
@@ -925,15 +940,16 @@ function switchModule(mod) {
   });
 
   // body theme
-  document.body.classList.remove('pony', 'postal', 'cargo', 'undelivered', 'ps');
+  document.body.classList.remove('pony', 'postal', 'cargo', 'undelivered', 'ps', 'tpl');
   if (mod === 'pony') document.body.classList.add('pony');
   if (mod === 'postal') document.body.classList.add('postal');
   if (mod === 'cargo') document.body.classList.add('cargo');
   if (mod === 'undelivered') document.body.classList.add('undelivered');
   if (mod === 'ps') document.body.classList.add('ps');
+  if (mod === 'tpl') document.body.classList.add('tpl');
 
   // subtitle
-  var subtitles = { courier: 'Инструкция курьера', pony: 'Продукты и услуги', postal: 'Почтовые отправления', cargo: 'Грузовые отправления', undelivered: 'Приём недоставленных отправлений', ps: 'Производственная система' };
+  var subtitles = { courier: 'Инструкция курьера', pony: 'Продукты и услуги', postal: 'Почтовые отправления', cargo: 'Грузовые отправления', undelivered: 'Приём недоставленных отправлений', ps: 'Производственная система', tpl: '3PL: Приём отправлений' };
   document.getElementById('moduleSubtitle').textContent = subtitles[mod] || '';
 
   // re-apply pony/postal tab accent colors for currently active tab
@@ -1087,6 +1103,27 @@ const searchData = [
   { module:'ps', moduleLabel:'Производственная система', section:'ps_ppu', sectionName:'Предложения по улучшению', title:'ППУ что не принимается', text:'Не принимаются: поданные повторно или внедрённые другими ранее, описывающие действующий регламентированный процесс, не предлагающие конкретного механизма реализации, направленные на улучшение бытовых условий, анонимные.' },
   { module:'ps', moduleLabel:'Производственная система', section:'ps_ppu', sectionName:'Предложения по улучшению', title:'Подача и регистрация ППУ принятие руководителем', text:'Руководитель должен принимать любые предложения от сотрудников, даже если считает это не улучшением. ППУ считается разработанным после принятия Комиссией решения внедрить ППУ. За разработку и внедрение ППУ компания выплачивает премию.' },
 
+  // 3PL — ПРИЁМ ОТПРАВЛЕНИЙ
+  { module:'tpl', moduleLabel:'3PL: Приём отправлений', section:'tpl_reg', sectionName:'Регистрация ТС', title:'Этапы регистрации транспортного средства', text:'1. Получение документов у диспетчера: ТН, ТТН, Карточка учёта разгрузки. 2. Осмотр кузова ТС. 3. Проверка целостности пломбы. 4. Постановка ТС на ворота. 5. Открытие ворот, установка доклевеллера, включение освещения.' },
+  { module:'tpl', moduleLabel:'3PL: Приём отправлений', section:'tpl_reg', sectionName:'Регистрация ТС', title:'Получение документов при регистрации ТС', text:'Получите у диспетчера: Транспортная накладная (ТН) — 1 экземпляр, Товарно-транспортная накладная (ТТН) — 1 экземпляр, Карточка учёта разгрузки — 1 экземпляр.' },
+  { module:'tpl', moduleLabel:'3PL: Приём отправлений', section:'tpl_reg', sectionName:'Регистрация ТС', title:'Проверка пломбы ТС', text:'Проверьте наличие и целостность пломбы на транспортном средстве. Сфотографируйте пломбу, сверьте её номер с номером, указанным в транспортной накладной.' },
+  { module:'tpl', moduleLabel:'3PL: Приём отправлений', section:'tpl_reg', sectionName:'Регистрация ТС', title:'Постановка ТС на ворота', text:'Проконтролируйте постановку транспортного средства на ворота, указанные в карточке учёта разгрузки. Пригласите водителя на склад для присутствия на разгрузке.' },
+  { module:'tpl', moduleLabel:'3PL: Приём отправлений', section:'tpl_reg', sectionName:'Регистрация ТС', title:'Визуальный осмотр товара в кузове', text:'Сфотографируйте товар в кузове ТС до разгрузки. Визуально осмотрите целостность паллет и транспортных коробов. Определите возможность механической выгрузки паллет.' },
+  { module:'tpl', moduleLabel:'3PL: Приём отправлений', section:'tpl_reg', sectionName:'Регистрация ТС', title:'Повреждения при разгрузке завалы паллет подтёки', text:'Если обнаружены завалы паллет, повреждения упаковки, подтёки, замятия: проинформировать бригадира, проинформировать менеджера с фото, опаллетить поддоны стрейч-плёнкой в три слоя.' },
+  { module:'tpl', moduleLabel:'3PL: Приём отправлений', section:'tpl_prep', sectionName:'Подготовка', title:'Первый запуск приложения ТСД WmsMobile предварительная приёмка', text:'Внести идентификационные данные в ТСД. Выбрать поток «Приёмка». В меню выбрать «Предварительная приёмка 2». Выбрать номер извещения из карточки учёта разгрузки. Отсканировать штрих-код ворот.' },
+  { module:'tpl', moduleLabel:'3PL: Приём отправлений', section:'tpl_prep', sectionName:'Подготовка', title:'Предварительная приёмка ТСД механизированная выгрузка паллет', text:'Отсканировать штрих-код паллетной этикетки. Оценить дополнительные операции. Посчитать количество отсканированных паллет и сравнить с карточкой учёта разгрузки.' },
+  { module:'tpl', moduleLabel:'3PL: Приём отправлений', section:'tpl_prep', sectionName:'Подготовка', title:'Предварительная приёмка выгрузка навалом грузовые места', text:'Посчитать все выгруженные коробы на паллетах, сравнить с карточкой учёта разгрузки. Если расхождение — найти недостающие места и отсканировать. Закрыть предварительную приёмку в ТСД.' },
+  { module:'tpl', moduleLabel:'3PL: Приём отправлений', section:'tpl_prep', sectionName:'Подготовка', title:'Заполнение транспортной накладной время подпись', text:'Вписать количество выгруженных мест, номер и дату Акта осмотра ТС. Указать время прибытия, постановки, окончания выгрузки и убытия (текущее + 5 минут). Поставить должность, подпись, ФИО, печать Грузополучателя.' },
+  { module:'tpl', moduleLabel:'3PL: Приём отправлений', section:'tpl_wms', sectionName:'Приём в WMS', title:'Этапы приёмки в WMS назначение кладовщика', text:'Получить от бригадира указания принимать товар в WMS. Подготовить документы для приёмки (индивидуальный пакет для каждого клиента). Зарегистрироваться в ТСД.' },
+  { module:'tpl', moduleLabel:'3PL: Приём отправлений', section:'tpl_wms', sectionName:'Приём в WMS', title:'Приёмка по количеству и качеству 8 шагов алгоритм', text:'1. Поддоны. 2. Отсканировать предварительный контейнер. 3. Паллетная этикетка. 4. Вскрыть упаковку. 5. Штрих-код товара. 6. Статус Кондиция или Брак. 7. Пересчитать количество. 8. Ввести количество в ТСД.' },
+  { module:'tpl', moduleLabel:'3PL: Приём отправлений', section:'tpl_wms', sectionName:'Приём в WMS', title:'Сверхплановая приёмка сообщение ТСД излишки', text:'Повторно пересчитать количество товара. Если результат тот же — переложить излишек на пустой поддон. Если другой — ввести фактически принятое количество в ТСД.' },
+  { module:'tpl', moduleLabel:'3PL: Приём отправлений', section:'tpl_wms', sectionName:'Приём в WMS', title:'Расхождение по качеству при приёмке брак повреждения', text:'Сфотографировать повреждения коробов или упаковок. Проинформировать менеджера по email с фото. Если брак — обмотать паллеты стрейч, расклеить этикетки. Если годный — переложить на свободные паллеты.' },
+  { module:'tpl', moduleLabel:'3PL: Приём отправлений', section:'tpl_wms', sectionName:'Приём в WMS', title:'Идентификация товара невозможна действия', text:'Отложить товар на пустой поддон. Сфотографировать товар и этикетку. Направить информацию через Discord. Сфотографировать повреждения.' },
+  { module:'tpl', moduleLabel:'3PL: Приём отправлений', section:'tpl_wms', sectionName:'Приём в WMS', title:'Контроль приёмки закрытие контейнера МХ-1', text:'Проверить принятие товара на всех паллетах. Сформировать отчёт Контроль приёмки: Приёмка → Приёмки → Контроль приёмки. Нажать Печать. Подписать МХ-1 и передать диспетчеру.' },
+  { module:'tpl', moduleLabel:'3PL: Приём отправлений', section:'tpl_wms', sectionName:'Приём в WMS', title:'Нестандартные ситуации недостачи излишки ТОРГ-2 коммерческий акт', text:'При недостачах — распечатать ТОРГ-2 в 3 экз., подписать, оставить экземпляр менеджеру. При излишках — составить Коммерческий акт в 3 экз., обмотать паллету, переместить в зону экспедиции, отправить скан менеджеру.' },
+  { module:'tpl', moduleLabel:'3PL: Приём отправлений', section:'tpl_returns', sectionName:'Приём возвратов', title:'Алгоритм приёмки возвратов от клиентов', text:'Приёмка возвратов аналогична обычной приёмке. Этапы: регистрация в ТСД, штучная приёмка по количеству и качеству, формирование и подписание документов, передача в диспетчерскую.' },
+  { module:'tpl', moduleLabel:'3PL: Приём отправлений', section:'tpl_returns', sectionName:'Приём возвратов', title:'Расхождения по качеству при приёмке возвратов', text:'Сфотографировать повреждения. Проинформировать менеджера по email. Брак — обмотать стрейч, расклеить этикетки, отсканировать. Годный — переложить на паллеты с тем же артикулом, обмотать, расклеить, отсканировать.' },
+
 ];
 
 function highlight(text, query) {
@@ -1142,8 +1179,8 @@ input.addEventListener('input', function() {
 
   var q2 = this.value.trim();
   resultsList.innerHTML = found.map(function(item) {
-    var itemClass = item.module === 'pony' ? 'pony-result' : item.module === 'postal' ? 'postal-result' : item.module === 'cargo' ? 'cargo-result' : item.module === 'undelivered' ? 'undelivered-result' : item.module === 'ps' ? 'ps-result' : '';
-    var badgeClass = item.module === 'courier' ? 'badge-courier' : item.module === 'postal' ? 'badge-postal' : item.module === 'cargo' ? 'badge-cargo' : item.module === 'undelivered' ? 'badge-undelivered' : item.module === 'ps' ? 'badge-ps' : 'badge-pony';
+    var itemClass = item.module === 'pony' ? 'pony-result' : item.module === 'postal' ? 'postal-result' : item.module === 'cargo' ? 'cargo-result' : item.module === 'undelivered' ? 'undelivered-result' : item.module === 'ps' ? 'ps-result' : item.module === 'tpl' ? 'tpl-result' : '';
+    var badgeClass = item.module === 'courier' ? 'badge-courier' : item.module === 'postal' ? 'badge-postal' : item.module === 'cargo' ? 'badge-cargo' : item.module === 'undelivered' ? 'badge-undelivered' : item.module === 'ps' ? 'badge-ps' : item.module === 'tpl' ? 'badge-tpl' : 'badge-pony';
     var preview = item.text.length > 110 ? item.text.slice(0, 110) + '…' : item.text;
     return '<div class="result-item ' + itemClass + '" onclick="goToItem(\'' + item.module + '\',\'' + item.section + '\')">' +
       '<span class="result-module-badge ' + badgeClass + '">' + item.moduleLabel + '</span>' +
@@ -2029,6 +2066,246 @@ function goToItem(mod, sectionId) {
 </div><!-- /module-ps -->
 
 
+<!-- ======================================================= -->
+<!-- MODULE 7: 3PL — ПРИЁМ ОТПРАВЛЕНИЙ -->
+<!-- ======================================================= -->
+<div class="module" id="module-tpl">
+<div class="main">
+  <div class="section-tabs" id="tplTabs">
+    <button class="tab-btn active" onclick="showSection('tpl_reg','tpl',this)">🚛 Регистрация ТС</button>
+    <button class="tab-btn" onclick="showSection('tpl_prep','tpl',this)">📋 Подготовка</button>
+    <button class="tab-btn" onclick="showSection('tpl_wms','tpl',this)">💻 Приём в WMS</button>
+    <button class="tab-btn" onclick="showSection('tpl_returns','tpl',this)">↩️ Приём возвратов</button>
+  </div>
+
+  <!-- T1. РЕГИСТРАЦИЯ ТРАНСПОРТНОГО СРЕДСТВА -->
+  <div class="section active" id="tpl-tpl_reg">
+    <div class="section-header">
+      <div class="section-icon" style="background:#e0f2fe">🚛</div>
+      <div class="section-title">Регистрация транспортного средства</div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#0369a1">Этапы регистрации ТС</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">1. Получение документов</div><div class="val">Получите у диспетчера: Транспортная накладная (ТН) — 1 экз., Товарно-транспортная накладная (ТТН) — 1 экз., Карточка учёта разгрузки — 1 экз.</div></div>
+        <div class="info-item"><div class="lbl">2. Осмотр ТС</div><div class="val">Осмотрите кузов транспортного средства на предмет внешних повреждений. При наличии тента — проверьте целостность шнуровки.</div></div>
+        <div class="info-item"><div class="lbl">3. Проверка целостности пломбы</div><div class="val">Проверьте наличие и целостность пломбы на ТС. Сфотографируйте пломбу, сверьте её номер с номером, указанным в транспортной накладной.</div></div>
+        <div class="info-item"><div class="lbl">4. Постановка ТС на ворота</div><div class="val">Проконтролируйте постановку транспортного средства на ворота, указанные в карточке учёта разгрузки. Пригласите водителя на склад для присутствия на разгрузке.</div></div>
+        <div class="info-item"><div class="lbl">5. Ворота</div><div class="val">Откройте ворота склада. Установите доклевеллер. Включите освещение кузова ТС.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#0369a1">Если комплектность документов не соответствует требованиям</div>
+      <div class="steps">
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">1</div><div class="step-text">Сообщите диспетчеру об отсутствии документов.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">2</div><div class="step-text">Получите от диспетчера недостающие документы.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#0369a1">Если в карточке учёта разгрузки не указаны ворота</div>
+      <div class="alert" style="background:#e0f2fe;border-left:4px solid #0369a1"><span class="alert-icon">ℹ️</span><span>Обратитесь к диспетчеру для уточнения ворот постановки транспортного средства.</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#0369a1">Визуальный осмотр товара в кузове ТС</div>
+      <div class="steps">
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">1</div><div class="step-text">Сфотографируйте товар в кузове ТС до разгрузки.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">2</div><div class="step-text">Визуально осмотрите целостность паллет, транспортных коробов в кузове ТС.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">3</div><div class="step-text">Определите возможность механической выгрузки паллет.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#0369a1">Если обнаружены повреждения при разгрузке</div>
+      <div class="alert alert-warning"><span class="alert-icon">⚠️</span><span>Если обнаружены завалы паллет, повреждения упаковки транспортных коробов, подтёки, замятия и прочие повреждения:</span></div>
+      <div class="steps">
+        <div class="step"><div class="step-num" style="background:#fff7ed;color:#c2410c">1</div><div class="step-text">Проинформируйте бригадира.</div></div>
+        <div class="step"><div class="step-num" style="background:#fff7ed;color:#c2410c">2</div><div class="step-text">Проинформируйте менеджера и направьте фото повреждённого товара.</div></div>
+        <div class="step"><div class="step-num" style="background:#fff7ed;color:#c2410c">3</div><div class="step-text">Опаллетьте сформированные поддоны с товаром прозрачной стрейч-плёнкой в три слоя.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#0369a1">Если менеджер сообщил об отказе клиента от разгрузки</div>
+      <div class="steps">
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">1</div><div class="step-text">Известите водителя об отказе в разгрузке.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#0369a1">Механическая выгрузка паллет</div>
+      <div class="alert" style="background:#e0f2fe;border-left:4px solid #0369a1"><span class="alert-icon">ℹ️</span><span>При механической выгрузке соблюдайте порядок действий согласно этапу «Механическая выгрузка паллет» в карточке учёта разгрузки.</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#0369a1">Окончание разгрузки</div>
+      <div class="steps">
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">1</div><div class="step-text">Выключите освещение кузова ТС.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- T2. ПОДГОТОВКА К ПРИЁМУ ОТПРАВЛЕНИЙ -->
+  <div class="section" id="tpl-tpl_prep">
+    <div class="section-header">
+      <div class="section-icon" style="background:#e0f2fe">📋</div>
+      <div class="section-title">Подготовка к приёму отправлений</div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#0369a1">Первый запуск приложения ТСД (WmsMobile)</div>
+      <div class="steps">
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">1</div><div class="step-text">Внесите свои идентификационные данные в ТСД (авторизация).</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">2</div><div class="step-text">Выберите в ТСД поток <b>«Приёмка»</b> в основном меню.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">3</div><div class="step-text">В меню «Приёмка» выберите рабочий поток <b>«Предварительная приёмка 2».</b></div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">4</div><div class="step-text">Выберите из списка на ТСД <b>номер извещения</b>, по которому осуществляется приёмка (указан в карточке учёта разгрузки).</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">5</div><div class="step-text">Отсканируйте штрих-код ворот, на которые были выгружены паллеты.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#0369a1">Предварительная приёмка в ТСД (механизированная выгрузка)</div>
+      <div class="steps">
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">1</div><div class="step-text">Отсканируйте штрих-код на паллетной этикетке.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">2</div><div class="step-text">Оцените, выполнялись ли дополнительные операции при разгрузке и предварительной приёмке отсканированной паллеты из предложенного в ТСД списка.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">3</div><div class="step-text">Посчитайте количество отсканированных по ТСД паллет, сравните с количеством выгруженных паллет по карточке учёта разгрузки.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#0369a1">Нестандартные ситуации при предварительной приёмке (механизация)</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">Количество отсканированных паллет не совпадает с выгруженными</div><div class="val">Найдите непринятые паллеты и отсканируйте штрих-код на паллетной этикетке.</div></div>
+        <div class="info-item"><div class="lbl">Приняты не все паллеты</div><div class="val">Отсканируйте штрих-код на паллетной этикетке.</div></div>
+        <div class="info-item"><div class="lbl">Расхождение по количеству и/или качеству</div><div class="val">Сделайте отметку в Карточке учёта разгрузки и ТН об обнаруженном расхождении.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#0369a1">Предварительная приёмка в ТСД (выгрузка навалом)</div>
+      <div class="steps">
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">1</div><div class="step-text">Посчитайте сумму всех выгруженных и разложенных коробов (грузовых мест) на паллетах, сравните с количеством в карточке учёта разгрузки.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">2</div><div class="step-text">Если количество грузовых мест не совпадает — найдите недостающие грузовые места и отсканируйте штрих-код на паллетной этикетке.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">3</div><div class="step-text">Закройте предварительную приёмку в ТСД.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">4</div><div class="step-text">Если по итогам разгрузки обнаружены расхождения по количеству и/или качеству — укажите об этом в карточке учёта разгрузки и ТН.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#0369a1">Заполнение транспортной накладной</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">Что вписать</div><div class="val">Количество выгруженных грузовых мест; номер и дату Акта осмотра ТС (если составлялся); краткую причину составления Акта; отказ водителя присутствовать (если было).</div></div>
+        <div class="info-item"><div class="lbl">Время</div><div class="val">Укажите: время прибытия ТС (время подачи товаросопроводительных документов); время постановки ТС на выгрузку; время окончания выгрузки; время убытия (текущее время + 5 минут).</div></div>
+        <div class="info-item"><div class="lbl">Подпись</div><div class="val">Проставьте свою должность, подпись, ФИО и печать Грузополучателя на свою подпись.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- T3. ПРИЁМ ОТПРАВЛЕНИЙ В WMS -->
+  <div class="section" id="tpl-tpl_wms">
+    <div class="section-header">
+      <div class="section-icon" style="background:#e0f2fe">💻</div>
+      <div class="section-title">Приём отправлений в WMS</div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#0369a1">Этапы приёмки в WMS</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">1. Назначение кладовщика</div><div class="val">Получите от бригадира указания принимать товар в WMS. Подготовьте документы для приёмки (для каждого клиента формируется индивидуальный пакет).</div></div>
+        <div class="info-item"><div class="lbl">2. Регистрация в ТСД</div><div class="val">Авторизуйтесь в приложении WmsMobile на ТСД.</div></div>
+        <div class="info-item"><div class="lbl">3. Приёмка по количеству и качеству</div><div class="val">Пошаговая приёмка каждой паллеты с подсчётом товара.</div></div>
+        <div class="info-item"><div class="lbl">4. Ввод дополнительных атрибутов товара</div><div class="val">Вносятся дополнительные данные по товару в WMS.</div></div>
+        <div class="info-item"><div class="lbl">5. Закрытие контейнера</div><div class="val">Проверка принятых паллет и закрытие контейнера в WMS.</div></div>
+        <div class="info-item"><div class="lbl">6. Формирование и подписание документов</div><div class="val">Формирование МХ-1 и Коммерческого акта при расхождениях.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#0369a1">Приёмка по количеству и качеству — алгоритм</div>
+      <div class="steps">
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">1</div><div class="step-text">Подведите к месту приёмки необходимое количество поддонов.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">2</div><div class="step-text">Отсканируйте штрих-код предварительного контейнера.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">3</div><div class="step-text">Отсканируйте штрих-код на паллетной этикетке. Если не сканируется — введите штрих-код контейнера вручную.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">4</div><div class="step-text">Вскройте упаковку паллеты, если необходимо. Если товар в коробе — вскройте транспортный короб.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">5</div><div class="step-text">Отсканируйте штрих-код товара. Если не сканируется — введите вручную.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">6</div><div class="step-text">Выберите статус принимаемого товара: <b>«Кондиция»</b> — для годного, <b>«Брак»</b> — для бракованного.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">7</div><div class="step-text">Пересчитайте фактическое количество товара на паллете (в коробах или штуках, в зависимости от отсканированного штрих-кода).</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">8</div><div class="step-text">Введите фактическое количество товара в ТСД в единицах измерения, указанных на экране.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#0369a1">Если ТСД сообщает о приёмке товара сверх плана</div>
+      <div class="steps">
+        <div class="step"><div class="step-num" style="background:#fff7ed;color:#c2410c">1</div><div class="step-text">Повторно пересчитайте количество данного товара на всех принятых паллетах.</div></div>
+        <div class="step"><div class="step-num" style="background:#fff7ed;color:#c2410c">2</div><div class="step-text">Если результат тот же — переложите излишек на пустой поддон.</div></div>
+        <div class="step"><div class="step-num" style="background:#fff7ed;color:#c2410c">3</div><div class="step-text">Если пересчёт дал другой результат — введите в ТСД фактически принятое количество.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#0369a1">Расхождение по качеству при приёмке</div>
+      <div class="steps">
+        <div class="step"><div class="step-num" style="background:#fff7ed;color:#c2410c">1</div><div class="step-text">Сфотографируйте обнаруженные повреждения транспортных коробов или индивидуальных упаковок товара.</div></div>
+        <div class="step"><div class="step-num" style="background:#fff7ed;color:#c2410c">2</div><div class="step-text">Проинформируйте менеджера по электронной почте, приложив сделанные фотографии.</div></div>
+      </div>
+      <div class="info-row" style="margin-top:12px">
+        <div class="info-item"><div class="lbl">Клиент признал товар бракованным</div><div class="val">Оберните паллеты с браком стрейч-плёнкой. Расклейте паллетные этикетки. Сфотографируйте повреждения коробов/упаковок.</div></div>
+        <div class="info-item"><div class="lbl">Клиент признал товар годным</div><div class="val">Переложите товар на непринятые паллеты с таким же артикулом или на пустой поддон. Оберните стрейч-плёнкой. Расклейте паллетные этикетки. Сфотографируйте повреждения.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#0369a1">Если невозможно идентифицировать товар</div>
+      <div class="steps">
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">1</div><div class="step-text">Отложите товар на пустой поддон (паллет).</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">2</div><div class="step-text">Сфотографируйте товар и этикетку товара.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">3</div><div class="step-text">Направьте информацию через Discord.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">4</div><div class="step-text">Сфотографируйте обнаруженные повреждения.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#0369a1">Закрытие контейнера и контроль приёмки</div>
+      <div class="steps">
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">1</div><div class="step-text">После приёмки всех паллет проверьте, на всех ли паллетах был принят товар.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">2</div><div class="step-text">Для контроля сформируйте отчёт <b>«Контроль приёмки»</b>: Приёмка → Приёмки → Контроль приёмки.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">3</div><div class="step-text">Нажмите кнопку <b>«Печать»</b> для печати МХ-1. Подпишите и передайте диспетчеру.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#0369a1">Нестандартные ситуации по итогам приёмки</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">Выявлены недостачи или расхождения по качеству</div><div class="val">Распечатайте ТОРГ-2 (3 экземпляра) и подпишите. Оставьте экземпляр в лотке менеджера по управлению запасами. В листе закрытия приёмки укажите, что были расхождения.</div></div>
+        <div class="info-item"><div class="lbl">Выявлены излишки</div><div class="val">1. Составьте Коммерческий акт в 3-х экземплярах и подпишите. 2. Обмотайте паллету с излишками стрейч-плёнкой, вложите копию акта. 3. Переместите паллету в зону экспедиции. 4. Отсканируйте акт и отправьте менеджеру.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- T4. ПРИЁМ ВОЗВРАТОВ -->
+  <div class="section" id="tpl-tpl_returns">
+    <div class="section-header">
+      <div class="section-icon" style="background:#e0f2fe">↩️</div>
+      <div class="section-title">Приём отправлений в WMS (возвраты)</div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#0369a1">Этапы приёмки возвратов</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">Общий алгоритм</div><div class="val">Приёмка возвратов от клиентов осуществляется по алгоритму, аналогичному обычной приёмке. Этапы: регистрация в ТСД → штучная приёмка по количеству и качеству → формирование и подписание документов → передача документов в диспетчерскую.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#0369a1">Штучная приёмка по количеству и качеству — алгоритм</div>
+      <div class="steps">
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">1</div><div class="step-text">Подведите к месту приёмки необходимое количество поддонов.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">2</div><div class="step-text">Отсканируйте штрих-код предварительного контейнера.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">3</div><div class="step-text">Отсканируйте штрих-код на паллетной этикетке. Если не сканируется — введите вручную.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">4</div><div class="step-text">Вскройте упаковку паллеты, если необходимо. Если товар в коробе — вскройте транспортный короб.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">5</div><div class="step-text">Отсканируйте штрих-код товара. Если не сканируется — введите вручную.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">6</div><div class="step-text">Выберите статус товара: <b>«Кондиция»</b> — для годного, <b>«Брак»</b> — для бракованного.</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">7</div><div class="step-text">Пересчитайте фактическое количество товара (в коробах или штуках).</div></div>
+        <div class="step"><div class="step-num" style="background:#e0f2fe;color:#0369a1">8</div><div class="step-text">Введите фактическое количество в ТСД в указанных единицах измерения.</div></div>
+      </div>
+      <div class="alert alert-warning"><span class="alert-icon">⚠️</span><span>Если ТСД сообщает о приёмке сверх плана — повторно пересчитайте товар. Если результат тот же — переложите излишек на пустой поддон.</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#0369a1">Расхождения по качеству при приёмке возвратов</div>
+      <div class="info-row">
+        <div class="info-item"><div class="lbl">Обнаружены расхождения по качеству</div><div class="val">1. Сфотографируйте повреждения коробов/упаковок. 2. Проинформируйте менеджера по эл. почте с фотографиями.</div></div>
+        <div class="info-item"><div class="lbl">Товар признан бракованным</div><div class="val">Оберните паллеты с браком стрейч-плёнкой. Расклейте паллетные этикетки. Отсканируйте штрих-код паллетной этикетки.</div></div>
+        <div class="info-item"><div class="lbl">Товар признан годным</div><div class="val">Переложите товар на непринятые паллеты с таким же артикулом или пустой поддон. Оберните стрейч-плёнкой. Расклейте этикетки. Отсканируйте штрих-код паллетной этикетки.</div></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main tpl -->
+</div><!-- /module-tpl -->
+
+
 
 
 
@@ -2044,5 +2321,8 @@ if ('serviceWorker' in navigator && location.hostname !== 'www.claudeusercontent
 </script>
 </body>
 </html>
+
+
+
 
 
